@@ -1,37 +1,17 @@
 export class IQuizRepository {
-  async saveQuiz(quiz) {
+  async getAllQuizzes() {
     throw new Error('Method not implemented')
   }
-  
-  async getQuiz(quizId) {
+
+  async getQuiz(id) {
     throw new Error('Method not implemented')
   }
-  
-  async getQuizzes(filters = {}) {
+
+  async generateQuiz(topic, difficulty) {
     throw new Error('Method not implemented')
   }
-  
-  async deleteQuiz(quizId) {
-    throw new Error('Method not implemented')
-  }
-  
-  async saveAttempt(attempt) {
-    throw new Error('Method not implemented')
-  }
-  
-  async getAttempt(attemptId) {
-    throw new Error('Method not implemented')
-  }
-  
-  async getQuizAttempts(quizId, userId) {
-    throw new Error('Method not implemented')
-  }
-  
-  async getQuizResult(quizId, userId) {
-    throw new Error('Method not implemented')
-  }
-  
-  async getAvailableQuizzes(userId) {
+
+  async submitQuiz(data) {
     throw new Error('Method not implemented')
   }
 }

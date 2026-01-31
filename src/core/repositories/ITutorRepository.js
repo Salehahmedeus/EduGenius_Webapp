@@ -1,21 +1,17 @@
 export class ITutorRepository {
-  async saveConversation(conversation) {
+  async getChats() {
     throw new Error('Method not implemented')
   }
-  
-  async saveMessage(message) {
+
+  async getChatHistory(id) {
     throw new Error('Method not implemented')
   }
-  
-  async getConversation(conversationId) {
+
+  async askAI(query, file) {
     throw new Error('Method not implemented')
   }
-  
-  async getConversations(userId) {
-    throw new Error('Method not implemented')
-  }
-  
-  async deleteConversation(conversationId) {
+
+  async deleteChat(id) {
     throw new Error('Method not implemented')
   }
 }

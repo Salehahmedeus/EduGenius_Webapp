@@ -5,42 +5,36 @@ export class ConversationService {
   constructor(tutorRepository) {
     this.tutorRepository = tutorRepository
   }
-  
-  async createConversation(userId, title = 'New Conversation') {
-    const conversation = new Conversation({
-      session: {
-        userId,
-        title
-      }
-    })
-    
-    return await this.tutorRepository.saveConversation(conversation)
+
+  async createConversation(userId, title = 'New Chat') {
+    // In this API, conversations are likely created by asking a question.
+    // This method might just return a local placeholder or be unused.
+    return new Conversation({ session: { userId, title } })
   }
-  
-  async addMessage(conversationId, role, content) {
-    const message = new Message({
-      sessionId: conversationId,
-      role,
-      content
-    })
-    
-    return await this.tutorRepository.saveMessage(message)
+
+  async sendMessage(query, file = null) {
+    // 'askAI' is the primary way to interact
+    const response = await this.tutorRepository.askAI(query, file)
+    // Response likely contains the AI's answer and maybe a session ID?
+    // We'll return it raw for now or map it if we knew the shape.
+    return response
   }
-  
-  async getConversation(conversationId) {
-    return await this.tutorRepository.getConversation(conversationId)
+
+  async getConversation(id) {
+    // Maps to 'getChatHistory'
+    const history = await this.tutorRepository.getChatHistory(id)
+    // TODO: Map 'history' to Conversation entity if needed
+    return history
   }
-  
-  async getConversations(userId) {
-    return await this.tutorRepository.getConversations(userId)
+
+  async getConversations() {
+    // Maps to 'getChats'
+    const chats = await this.tutorRepository.getChats()
+    // TODO: Map 'chats' to Conversation entities if needed
+    return chats
   }
-  
-  async deleteConversation(conversationId) {
-    return await this.tutorRepository.deleteConversation(conversationId)
-  }
-  
-  async getContext(conversationId, limit = 10) {
-    const conversation = await this.getConversation(conversationId)
-    return conversation ? conversation.getContext(limit) : []
+
+  async deleteConversation(id) {
+    return await this.tutorRepository.deleteChat(id)
   }
 }

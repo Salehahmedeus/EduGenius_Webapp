@@ -6,42 +6,31 @@ export class AnalyticsService {
   constructor(dashboardRepository) {
     this.dashboardRepository = dashboardRepository
   }
-  
-  async getDashboardStats(userId) {
-    const statsData = await this.dashboardRepository.getStats(userId)
-    return DashboardStats.fromJSON(statsData)
-  }
-  
-  async getUserProgress(userId, startDate, endDate) {
-    const progressData = await this.dashboardRepository.getProgress(userId, startDate, endDate)
-    return ProgressReport.fromJSON(progressData)
-  }
-  
-  async getUserActivity(userId, limit = 10) {
-    const activityData = await this.dashboardRepository.getActivity(userId, limit)
-    return activityData.map(a => UserActivity.fromJSON(a))
-  }
-  
-  async generateReport(userId, startDate, endDate) {
-    const stats = await this.getDashboardStats(userId)
-    const progress = await this.getUserProgress(userId, startDate, endDate)
-    const activities = await this.getUserActivity(userId, 100)
-    
+
+  async getDashboardData() {
+    const data = await this.dashboardRepository.getDashboardHome()
+    // Map backend response to entities if needed.
+    // Assuming data structure roughly matches what we need or is a superset.
     return {
-      stats,
-      progress,
-      activities,
-      generatedAt: new Date()
+      stats: data.stats ? DashboardStats.fromJSON(data.stats) : null,
+      recentActivity: data.activities ? data.activities.map((a) => UserActivity.fromJSON(a)) : [],
     }
   }
-  
+
+  async getProgressReport() {
+    const data = await this.dashboardRepository.getProgressReport()
+    return ProgressReport.fromJSON(data)
+  }
+
+  // Helper methods likely remain useful for local calculations
+
   calculateAverageScore(attempts) {
     if (attempts.length === 0) return 0
-    
+
     const total = attempts.reduce((sum, attempt) => sum + attempt.percentage, 0)
     return total / attempts.length
   }
-  
+
   calculateStudyTime(sessions) {
     return sessions.reduce((total, session) => total + (session.duration || 0), 0)
   }

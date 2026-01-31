@@ -1,36 +1,36 @@
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.edudashboard.com'
+export const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || 'https://edugenius-g6jn.onrender.com/api'
 
 export const API_ENDPOINTS = {
   auth: {
-    login: '/auth/login',
-    logout: '/auth/logout',
-    refresh: '/auth/refresh',
-    verify: '/auth/verify'
+    login: '/login',
+    register: '/register',
+    verifyOtp: '/otp/verify',
+    me: '/me',
+    logout: '/logout',
+    forgotPassword: '/password/email',
+    resetPassword: '/password/reset',
   },
-  tutor: {
-    conversations: '/tutor/conversations',
-    messages: '/tutor/messages',
-    sendMessage: '/tutor/send',
-    deleteConversation: '/tutor/conversations/:id'
+  ai: {
+    history: '/ai/history',
+    ask: '/ai/ask',
+    chats: '/ai/chats',
+    chat: '/ai/chats/:id',
   },
-  content: {
-    courses: '/content/courses',
-    lessons: '/content/lessons',
-    modules: '/content/modules',
-    upload: '/content/upload',
-    tree: '/content/tree'
+  materials: {
+    list: '/materials',
+    upload: '/materials/upload',
+    search: '/materials/search',
+    delete: '/materials/:id',
   },
   dashboard: {
-    stats: '/dashboard/stats',
-    progress: '/dashboard/progress',
+    home: '/dashboard/home',
     report: '/dashboard/report',
-    activity: '/dashboard/activity'
   },
-  quizzes: {
-    list: '/quizzes',
-    create: '/quizzes',
-    submit: '/quizzes/:id/submit',
-    results: '/quizzes/:id/results',
-    grade: '/quizzes/:id/grade'
-  }
+  quiz: {
+    generate: '/quiz/generate',
+    submit: '/quiz/submit',
+    all: '/quiz/all',
+    detail: '/quiz/:id',
+  },
 }

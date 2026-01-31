@@ -1,8 +1,9 @@
 <script setup>
 import { computed } from 'vue'
 import { RouterLink, RouterView, useRouter, useRoute } from 'vue-router'
-import { useDark, useToggle } from '@vueuse/core'
+import { useDark, useToggle, useLocalStorage } from '@vueuse/core'
 import { Sun, Moon } from 'lucide-vue-next'
+import { APP_CONSTANTS } from '@/shared/constants/appConstants'
 import { Toaster } from '@/components/ui/toast'
 import { Button } from '@/components/ui/button'
 import { authApi } from '@/infrastructure/api/authApi'
@@ -12,12 +13,13 @@ import AppSidebar from '@/components/layout/AppSidebar.vue'
 
 const isDark = useDark()
 const toggleDark = useToggle(isDark)
+const accessToken = useLocalStorage(APP_CONSTANTS.STORAGE_KEYS.ACCESS_TOKEN, null)
 
 const router = useRouter()
 const route = useRoute()
 const { toast } = useToast()
 
-const isLoggedIn = computed(() => !!jwtStorage.getAccessToken())
+const isLoggedIn = computed(() => !!accessToken.value)
 const isAuthRoute = computed(() => {
   const authRoutes = ['/login', '/register', '/verify-otp', '/forgot-password', '/reset-password']
   return authRoutes.includes(route.path)
@@ -46,15 +48,18 @@ const handleLogout = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-background font-sans antialiased">
+  <div class="h-screen flex overflow-hidden bg-background font-sans antialiased">
+    <!-- Sidebar -->
     <AppSidebar v-if="showSidebar" />
 
-    <div :class="{ 'pl-64 transition-all duration-300': showSidebar }">
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col min-w-0 bg-background">
+      <!-- Header -->
       <header
         v-if="showHeader"
-        class="sticky top-0 z-30 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+        class="h-16 shrink-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-30"
       >
-        <div class="container flex h-16 items-center justify-between px-4 mx-auto">
+        <div class="flex h-full items-center justify-between px-6">
           <nav class="flex items-center space-x-4 lg:space-x-6">
             <template v-if="!showSidebar">
               <RouterLink to="/" class="text-sm font-medium transition-colors hover:text-primary">
@@ -78,7 +83,7 @@ const handleLogout = async () => {
             </template>
           </nav>
 
-          <div class="flex items-center space-x-2">
+          <div class="flex items-center space-x-3">
             <Button
               variant="ghost"
               size="icon"
@@ -91,16 +96,25 @@ const handleLogout = async () => {
             </Button>
 
             <div v-if="isLoggedIn">
-              <Button variant="ghost" size="sm" @click="handleLogout"> Logout </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                @click="handleLogout"
+                class="hover:text-destructive"
+              >
+                Logout
+              </Button>
             </div>
           </div>
         </div>
       </header>
 
-      <main :class="{ 'p-6': showSidebar }">
+      <!-- Page Content -->
+      <main class="flex-1 overflow-hidden relative">
         <RouterView />
       </main>
     </div>
+
     <Toaster />
   </div>
 </template>

@@ -1,6 +1,6 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { authApi } from '@/infrastructure/api/authApi'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,15 +15,24 @@ import {
 } from '@/components/ui/card'
 
 const router = useRouter()
-const name = ref('')
+const route = useRoute()
 const email = ref('')
+const otp = ref('')
 const password = ref('')
 const passwordConfirmation = ref('')
 const isLoading = ref(false)
 const error = ref('')
+const success = ref('')
 
-const handleRegister = async () => {
+onMounted(() => {
+  if (route.query.email) {
+    email.value = route.query.email
+  }
+})
+
+const handleResetPassword = async () => {
   error.value = ''
+  success.value = ''
 
   if (password.value !== passwordConfirmation.value) {
     error.value = 'Passwords do not match'
@@ -33,16 +42,18 @@ const handleRegister = async () => {
   isLoading.value = true
 
   try {
-    await authApi.register({
-      name: name.value,
+    await authApi.resetPassword({
       email: email.value,
+      otp: otp.value,
       password: password.value,
       password_confirmation: passwordConfirmation.value,
     })
-    // Redirect to OTP verification
-    router.push({ path: '/verify-otp', query: { email: email.value } })
+    success.value = 'Password reset successfully!'
+    setTimeout(() => {
+      router.push('/login')
+    }, 1500)
   } catch (e) {
-    error.value = e.response?.data?.message || e.message || 'Failed to create account'
+    error.value = e.response?.data?.message || e.message || 'Failed to reset password'
   } finally {
     isLoading.value = false
   }
@@ -53,23 +64,26 @@ const handleRegister = async () => {
   <div class="flex items-center justify-center min-h-screen bg-muted/20">
     <Card class="w-full max-w-sm">
       <CardHeader>
-        <CardTitle class="text-xl">Sign Up</CardTitle>
-        <CardDescription> Enter your information to create an account </CardDescription>
+        <CardTitle class="text-2xl">Reset Password</CardTitle>
+        <CardDescription> Enter the OTP and your new password. </CardDescription>
       </CardHeader>
       <CardContent class="grid gap-4">
         <div v-if="error" class="text-sm text-destructive font-medium">
           {{ error }}
         </div>
-        <div class="grid gap-2">
-          <Label htmlFor="name">Full Name</Label>
-          <Input id="name" placeholder="John Doe" v-model="name" required />
+        <div v-if="success" class="text-sm text-green-600 font-medium">
+          {{ success }}
         </div>
         <div class="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="m@example.com" v-model="email" required />
+          <Input id="email" type="email" v-model="email" readonly class="bg-muted" />
         </div>
         <div class="grid gap-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="otp">OTP Code</Label>
+          <Input id="otp" type="text" placeholder="123456" v-model="otp" required />
+        </div>
+        <div class="grid gap-2">
+          <Label htmlFor="password">New Password</Label>
           <Input id="password" type="password" v-model="password" required />
         </div>
         <div class="grid gap-2">
@@ -83,17 +97,11 @@ const handleRegister = async () => {
         </div>
       </CardContent>
       <CardFooter>
-        <Button class="w-full" :disabled="isLoading" @click="handleRegister">
-          <span v-if="isLoading">Creating account...</span>
-          <span v-else>Create account</span>
+        <Button class="w-full" :disabled="isLoading" @click="handleResetPassword">
+          <span v-if="isLoading">Resetting...</span>
+          <span v-else>Reset Password</span>
         </Button>
       </CardFooter>
-      <div class="px-6 pb-6 text-center text-sm">
-        Already have an account?
-        <router-link to="/login" class="underline underline-offset-4 hover:text-primary">
-          Sign in
-        </router-link>
-      </div>
     </Card>
   </div>
 </template>

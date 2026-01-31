@@ -1,6 +1,6 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { authApi } from '@/infrastructure/api/authApi'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,20 +15,32 @@ import {
 } from '@/components/ui/card'
 
 const router = useRouter()
+const route = useRoute()
 const email = ref('')
-const password = ref('')
+const otp = ref('')
 const isLoading = ref(false)
 const error = ref('')
+const success = ref('')
 
-const handleLogin = async () => {
+onMounted(() => {
+  if (route.query.email) {
+    email.value = route.query.email
+  }
+})
+
+const handleVerifyOtp = async () => {
   error.value = ''
+  success.value = ''
   isLoading.value = true
 
   try {
-    await authApi.login({ email: email.value, password: password.value })
-    router.push('/dashboard/home')
+    await authApi.verifyOtp({ email: email.value, otp: otp.value })
+    success.value = 'Email verified successfully!'
+    setTimeout(() => {
+      router.push('/login')
+    }, 1500)
   } catch (e) {
-    error.value = e.message || 'Failed to login'
+    error.value = e.response?.data?.message || e.message || 'Failed to verify OTP'
   } finally {
     isLoading.value = false
   }
@@ -39,41 +51,34 @@ const handleLogin = async () => {
   <div class="flex items-center justify-center min-h-screen bg-muted/20">
     <Card class="w-full max-w-sm">
       <CardHeader>
-        <CardTitle class="text-2xl">Login</CardTitle>
-        <CardDescription> Enter your email below to login to your account. </CardDescription>
+        <CardTitle class="text-2xl">Verify OTP</CardTitle>
+        <CardDescription> Enter the OTP sent to your email address. </CardDescription>
       </CardHeader>
       <CardContent class="grid gap-4">
         <div v-if="error" class="text-sm text-destructive font-medium">
           {{ error }}
+        </div>
+        <div v-if="success" class="text-sm text-green-600 font-medium">
+          {{ success }}
         </div>
         <div class="grid gap-2">
           <Label htmlFor="email">Email</Label>
           <Input id="email" type="email" placeholder="m@example.com" v-model="email" required />
         </div>
         <div class="grid gap-2">
-          <div class="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
-            <router-link
-              to="/forgot-password"
-              class="text-sm underline underline-offset-4 hover:text-primary"
-            >
-              Forgot password?
-            </router-link>
-          </div>
-          <Input id="password" type="password" v-model="password" required />
+          <Label htmlFor="otp">OTP Code</Label>
+          <Input id="otp" type="text" placeholder="123456" v-model="otp" required />
         </div>
       </CardContent>
       <CardFooter>
-        <Button class="w-full" :disabled="isLoading" @click="handleLogin">
-          <span v-if="isLoading">Logging in...</span>
-          <span v-else>Sign in</span>
+        <Button class="w-full" :disabled="isLoading" @click="handleVerifyOtp">
+          <span v-if="isLoading">Verifying...</span>
+          <span v-else>Verify OTP</span>
         </Button>
       </CardFooter>
       <div class="px-6 pb-6 text-center text-sm">
-        Don't have an account?
-        <router-link to="/register" class="underline underline-offset-4 hover:text-primary">
-          Sign up
-        </router-link>
+        Didn't receive the code?
+        <a href="#" class="underline underline-offset-4 hover:text-primary"> Resend </a>
       </div>
     </Card>
   </div>

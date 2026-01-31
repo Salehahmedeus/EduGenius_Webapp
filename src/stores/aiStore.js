@@ -22,63 +22,90 @@ export const useAiStore = defineStore('ai', () => {
   }
 
   const setCurrentChat = async (id) => {
-    if (currentChatId.value === id) return
+    if (!id) return
+    if (currentChatId.value === id && messages.value.length > 0) return
+
     currentChatId.value = id
     isLoadingChat.value = true
-    messages.value = []
+
+    // Don't clear messages immediately to avoid flicker if load is fast
+    // messages.value = []
 
     try {
-      const history = await aiApi.fetchHistory(id)
+      const response = await aiApi.fetchHistory(id)
 
-      // Defensively extract the list of messages/interactions
-      let rawData = []
-      if (Array.isArray(history)) {
-        rawData = history
-      } else if (history && history.data && Array.isArray(history.data)) {
-        rawData = history.data
-      } else if (history && history.history && Array.isArray(history.history)) {
-        rawData = history.history
-      } else if (history && history.interactions && Array.isArray(history.interactions)) {
-        rawData = history.interactions
+      // EXHAUSTIVE DEFENSIVE EXTRACTION
+      // The goal is to find an array of items anywhere in the response
+      let rawItems = []
+      if (Array.isArray(response)) {
+        rawItems = response
+      } else if (response && typeof response === 'object') {
+        const potentialKeys = [
+          'data',
+          'messages',
+          'interactions',
+          'history',
+          'items',
+          'chat_history',
+        ]
+        for (const key of potentialKeys) {
+          if (Array.isArray(response[key])) {
+            rawItems = response[key]
+            break
+          }
+        }
+        // Fallback: search all object keys for first array found
+        if (rawItems.length === 0) {
+          const firstArrayKey = Object.keys(response).find((k) => Array.isArray(response[k]))
+          if (firstArrayKey) rawItems = response[firstArrayKey]
+        }
       }
 
-      // Transform interaction records into individual messages
-      const flattenedMessages = []
-      rawData.forEach((item) => {
-        // 1. Direct role/content format
-        if (item.role && (item.content || item.text)) {
-          flattenedMessages.push({
-            role: item.role,
-            content: item.content || item.text,
+      const normalizedMessages = []
+      rawItems.forEach((item) => {
+        // 1. Check for standard role/content or variations
+        const role = (item.role || item.sender || item.type || '').toLowerCase()
+        const content = item.content || item.text || item.message || item.body
+
+        if (role && content) {
+          normalizedMessages.push({
+            role: role.includes('user') ? 'user' : 'assistant',
+            content: content,
             file_name: item.file_name || null,
           })
         }
-        // 2. Interaction Pair format (query/response, q/a, etc.)
+        // 2. Check for interaction pairs (query & response in same object)
         else {
-          const userContent = item.query || item.user_query || item.q || item.request
-          const botContent =
-            item.response || item.ai_response || item.bot_response || item.answer || item.a
+          const userContent = item.query || item.user_query || item.q || item.request || item.prompt
+          const assistantContent =
+            item.response ||
+            item.ai_response ||
+            item.bot_response ||
+            item.answer ||
+            item.a ||
+            item.res
 
           if (userContent) {
-            flattenedMessages.push({
+            normalizedMessages.push({
               role: 'user',
               content: userContent,
-              file_name: item.file_name || null,
+              file_name: item.file_name || item.fileName || null,
             })
           }
 
-          if (botContent) {
-            flattenedMessages.push({
+          if (assistantContent) {
+            normalizedMessages.push({
               role: 'assistant',
-              content: botContent,
+              content: assistantContent,
             })
           }
         }
       })
 
-      messages.value = flattenedMessages
+      messages.value = normalizedMessages
     } catch (e) {
       console.error('Failed to load chat history', e)
+      // Keep existing messages or notify user
     } finally {
       isLoadingChat.value = false
     }

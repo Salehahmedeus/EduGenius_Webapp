@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { aiApi } from '@/infrastructure/api/aiApi'
 import { useAiStore } from '@/stores/aiStore'
 import { useToast } from '@/composables/useToast'
@@ -10,6 +10,23 @@ const { toast } = useToast()
 const aiStore = useAiStore()
 
 const isSending = ref(false)
+
+// Proactively load history if a chat is selected but messages are missing (e.g. on refresh/mount)
+onMounted(() => {
+  if (aiStore.currentChatId && aiStore.messages.length === 0) {
+    aiStore.setCurrentChat(aiStore.currentChatId)
+  }
+})
+
+// Ensure view stays synced if sidebar selection changes while already on this view
+watch(
+  () => aiStore.currentChatId,
+  (newId) => {
+    if (newId) {
+      aiStore.setCurrentChat(newId)
+    }
+  },
+)
 
 const handleSendMessage = async ({ query, file }) => {
   isSending.value = true

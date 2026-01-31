@@ -22,6 +22,15 @@ const isLoading = ref(false)
 const { toast } = useToast()
 
 const handleLogin = async () => {
+  if (!email.value || !password.value) {
+    toast({
+      title: 'Validation Error',
+      description: 'Email and password are required',
+      variant: 'destructive',
+    })
+    return
+  }
+
   isLoading.value = true
 
   try {

@@ -7,8 +7,9 @@ const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 30000,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  },
 })
 
 apiClient.interceptors.request.use(
@@ -21,17 +22,17 @@ apiClient.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error)
-  }
+  },
 )
 
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
-    
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
-      
+
       try {
         const newToken = await jwtStorage.refreshToken()
         originalRequest.headers.Authorization = `Bearer ${newToken}`
@@ -42,10 +43,10 @@ apiClient.interceptors.response.use(
         return Promise.reject(refreshError)
       }
     }
-    
+
     handleApiError(error)
     return Promise.reject(error)
-  }
+  },
 )
 
 export default apiClient

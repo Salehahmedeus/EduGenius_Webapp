@@ -24,6 +24,15 @@ const isLoading = ref(false)
 const { toast } = useToast()
 
 const handleRegister = async () => {
+  if (!name.value || !email.value || !password.value) {
+    toast({
+      title: 'Validation Error',
+      description: 'All fields are required',
+      variant: 'destructive',
+    })
+    return
+  }
+
   if (password.value !== passwordConfirmation.value) {
     toast({
       title: 'Error',
@@ -50,7 +59,24 @@ const handleRegister = async () => {
     // Redirect to OTP verification
     router.push({ path: '/verify-otp', query: { email: email.value } })
   } catch (e) {
-    const message = e.response?.data?.message || e.message || 'Failed to create account'
+    let message = 'Failed to create account'
+    if (e.response?.data) {
+      if (e.response.data.message) {
+        message = e.response.data.message
+      }
+      if (e.response.data.errors) {
+        const errors = e.response.data.errors
+        const firstError = Object.values(errors)[0]
+        if (Array.isArray(firstError)) {
+          message = firstError[0]
+        } else {
+          message = String(firstError)
+        }
+      }
+    } else {
+      message = e.message
+    }
+
     toast({
       title: 'Registration Error',
       description: message,

@@ -29,32 +29,50 @@ export const useAiStore = defineStore('ai', () => {
 
     try {
       const history = await aiApi.fetchHistory(id)
-      const rawData = Array.isArray(history) ? history : history.data || []
 
-      // Transform interaction records (query/response) into individual messages
+      // Defensively extract the list of messages/interactions
+      let rawData = []
+      if (Array.isArray(history)) {
+        rawData = history
+      } else if (history && history.data && Array.isArray(history.data)) {
+        rawData = history.data
+      } else if (history && history.history && Array.isArray(history.history)) {
+        rawData = history.history
+      } else if (history && history.interactions && Array.isArray(history.interactions)) {
+        rawData = history.interactions
+      }
+
+      // Transform interaction records into individual messages
       const flattenedMessages = []
       rawData.forEach((item) => {
-        // Handle if backend already returns role/content
-        if (item.role && item.content) {
-          flattenedMessages.push(item)
-        }
-        // Handle if backend returns interaction pairs (query/response)
-        else if (item.query && item.response) {
+        // 1. Direct role/content format
+        if (item.role && (item.content || item.text)) {
           flattenedMessages.push({
-            role: 'user',
-            content: item.query,
+            role: item.role,
+            content: item.content || item.text,
             file_name: item.file_name || null,
           })
-          flattenedMessages.push({
-            role: 'assistant',
-            content: item.response,
-          })
         }
-        // Fallback for partial records
-        else if (item.query) {
-          flattenedMessages.push({ role: 'user', content: item.query })
-        } else if (item.response) {
-          flattenedMessages.push({ role: 'assistant', content: item.response })
+        // 2. Interaction Pair format (query/response, q/a, etc.)
+        else {
+          const userContent = item.query || item.user_query || item.q || item.request
+          const botContent =
+            item.response || item.ai_response || item.bot_response || item.answer || item.a
+
+          if (userContent) {
+            flattenedMessages.push({
+              role: 'user',
+              content: userContent,
+              file_name: item.file_name || null,
+            })
+          }
+
+          if (botContent) {
+            flattenedMessages.push({
+              role: 'assistant',
+              content: botContent,
+            })
+          }
         }
       })
 

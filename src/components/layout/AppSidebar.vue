@@ -47,8 +47,11 @@ const isChatActive = (id) => {
   return route.path === '/ai-tutor' && aiStore.currentChatId === id
 }
 
+const emit = defineEmits(['close'])
+
 const handleNewChat = () => {
   aiStore.clearCurrentChat()
+  emit('close')
   if (route.path !== '/ai-tutor') {
     router.push('/ai-tutor')
   }
@@ -56,6 +59,7 @@ const handleNewChat = () => {
 
 const selectChat = (id) => {
   aiStore.setCurrentChat(id)
+  emit('close')
   if (route.path !== '/ai-tutor') {
     router.push('/ai-tutor')
   }
@@ -73,6 +77,7 @@ const handleDeleteChat = async (id) => {
 
 const handleLogout = () => {
   jwtStorage.clearTokens() // Corrected from clearAll
+  emit('close')
   router.push('/login')
 }
 

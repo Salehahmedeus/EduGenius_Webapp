@@ -5,6 +5,7 @@ import RegisterView from '../views/auth/RegisterView.vue'
 import VerifyOtpView from '../views/auth/VerifyOtpView.vue'
 import ForgotPasswordView from '../views/auth/ForgotPasswordView.vue'
 import ResetPasswordView from '../views/auth/ResetPasswordView.vue'
+import DashboardView from '../views/DashboardView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,6 +39,11 @@ const router = createRouter({
       path: '/reset-password',
       name: 'reset-password',
       component: ResetPasswordView,
+    },
+    {
+      path: '/dashboard/home',
+      name: 'dashboard',
+      component: DashboardView,
     },
     {
       path: '/about',

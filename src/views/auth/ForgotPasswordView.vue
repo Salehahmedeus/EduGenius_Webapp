@@ -5,6 +5,7 @@ import { authApi } from '@/infrastructure/api/authApi'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useToast } from '@/composables/useToast'
 import {
   Card,
   CardContent,
@@ -17,22 +18,28 @@ import {
 const router = useRouter()
 const email = ref('')
 const isLoading = ref(false)
-const error = ref('')
-const success = ref('')
+const { toast } = useToast()
 
 const handleForgotPassword = async () => {
-  error.value = ''
-  success.value = ''
   isLoading.value = true
 
   try {
     await authApi.forgotPassword({ email: email.value })
-    success.value = 'OTP sent to your email!'
+    toast({
+      title: 'Success',
+      description: 'OTP sent to your email!',
+      variant: 'success',
+    })
     setTimeout(() => {
       router.push({ path: '/reset-password', query: { email: email.value } })
     }, 1500)
   } catch (e) {
-    error.value = e.response?.data?.message || e.message || 'Failed to send OTP'
+    const message = e.response?.data?.message || e.message || 'Failed to send OTP'
+    toast({
+      title: 'Error',
+      description: message,
+      variant: 'destructive',
+    })
   } finally {
     isLoading.value = false
   }
@@ -49,12 +56,6 @@ const handleForgotPassword = async () => {
         </CardDescription>
       </CardHeader>
       <CardContent class="grid gap-4">
-        <div v-if="error" class="text-sm text-destructive font-medium">
-          {{ error }}
-        </div>
-        <div v-if="success" class="text-sm text-green-600 font-medium">
-          {{ success }}
-        </div>
         <div class="grid gap-2">
           <Label htmlFor="email">Email</Label>
           <Input id="email" type="email" placeholder="m@example.com" v-model="email" required />

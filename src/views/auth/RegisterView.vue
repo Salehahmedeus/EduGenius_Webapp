@@ -5,6 +5,7 @@ import { authApi } from '@/infrastructure/api/authApi'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useToast } from '@/composables/useToast'
 import {
   Card,
   CardContent,
@@ -20,13 +21,15 @@ const email = ref('')
 const password = ref('')
 const passwordConfirmation = ref('')
 const isLoading = ref(false)
-const error = ref('')
+const { toast } = useToast()
 
 const handleRegister = async () => {
-  error.value = ''
-
   if (password.value !== passwordConfirmation.value) {
-    error.value = 'Passwords do not match'
+    toast({
+      title: 'Error',
+      description: 'Passwords do not match',
+      variant: 'destructive',
+    })
     return
   }
 
@@ -39,10 +42,20 @@ const handleRegister = async () => {
       password: password.value,
       password_confirmation: passwordConfirmation.value,
     })
+    toast({
+      title: 'Success',
+      description: 'Account created! Please verify your email.',
+      variant: 'success',
+    })
     // Redirect to OTP verification
     router.push({ path: '/verify-otp', query: { email: email.value } })
   } catch (e) {
-    error.value = e.response?.data?.message || e.message || 'Failed to create account'
+    const message = e.response?.data?.message || e.message || 'Failed to create account'
+    toast({
+      title: 'Registration Error',
+      description: message,
+      variant: 'destructive',
+    })
   } finally {
     isLoading.value = false
   }
@@ -57,9 +70,6 @@ const handleRegister = async () => {
         <CardDescription> Enter your information to create an account </CardDescription>
       </CardHeader>
       <CardContent class="grid gap-4">
-        <div v-if="error" class="text-sm text-destructive font-medium">
-          {{ error }}
-        </div>
         <div class="grid gap-2">
           <Label htmlFor="name">Full Name</Label>
           <Input id="name" placeholder="John Doe" v-model="name" required />

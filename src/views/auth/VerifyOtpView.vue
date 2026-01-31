@@ -5,6 +5,7 @@ import { authApi } from '@/infrastructure/api/authApi'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useToast } from '@/composables/useToast'
 import {
   Card,
   CardContent,
@@ -19,8 +20,7 @@ const route = useRoute()
 const email = ref('')
 const otp = ref('')
 const isLoading = ref(false)
-const error = ref('')
-const success = ref('')
+const { toast } = useToast()
 
 onMounted(() => {
   if (route.query.email) {
@@ -29,18 +29,25 @@ onMounted(() => {
 })
 
 const handleVerifyOtp = async () => {
-  error.value = ''
-  success.value = ''
   isLoading.value = true
 
   try {
     await authApi.verifyOtp({ email: email.value, otp: otp.value })
-    success.value = 'Email verified successfully!'
+    toast({
+      title: 'Success',
+      description: 'Email verified successfully!',
+      variant: 'success',
+    })
     setTimeout(() => {
       router.push('/login')
     }, 1500)
   } catch (e) {
-    error.value = e.response?.data?.message || e.message || 'Failed to verify OTP'
+    const message = e.response?.data?.message || e.message || 'Failed to verify OTP'
+    toast({
+      title: 'Verification Error',
+      description: message,
+      variant: 'destructive',
+    })
   } finally {
     isLoading.value = false
   }
@@ -55,12 +62,6 @@ const handleVerifyOtp = async () => {
         <CardDescription> Enter the OTP sent to your email address. </CardDescription>
       </CardHeader>
       <CardContent class="grid gap-4">
-        <div v-if="error" class="text-sm text-destructive font-medium">
-          {{ error }}
-        </div>
-        <div v-if="success" class="text-sm text-green-600 font-medium">
-          {{ success }}
-        </div>
         <div class="grid gap-2">
           <Label htmlFor="email">Email</Label>
           <Input id="email" type="email" placeholder="m@example.com" v-model="email" required />

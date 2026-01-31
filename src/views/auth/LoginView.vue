@@ -5,6 +5,7 @@ import { authApi } from '@/infrastructure/api/authApi'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useToast } from '@/composables/useToast'
 import {
   Card,
   CardContent,
@@ -18,17 +19,26 @@ const router = useRouter()
 const email = ref('')
 const password = ref('')
 const isLoading = ref(false)
-const error = ref('')
+const { toast } = useToast()
 
 const handleLogin = async () => {
-  error.value = ''
   isLoading.value = true
 
   try {
     await authApi.login({ email: email.value, password: password.value })
+    toast({
+      title: 'Success',
+      description: 'Logged in successfully',
+      variant: 'success',
+    })
     router.push('/dashboard/home')
   } catch (e) {
-    error.value = e.message || 'Failed to login'
+    const message = e.response?.data?.message || e.message || 'Failed to login'
+    toast({
+      title: 'Login Error',
+      description: message,
+      variant: 'destructive',
+    })
   } finally {
     isLoading.value = false
   }
@@ -43,9 +53,6 @@ const handleLogin = async () => {
         <CardDescription> Enter your email below to login to your account. </CardDescription>
       </CardHeader>
       <CardContent class="grid gap-4">
-        <div v-if="error" class="text-sm text-destructive font-medium">
-          {{ error }}
-        </div>
         <div class="grid gap-2">
           <Label htmlFor="email">Email</Label>
           <Input id="email" type="email" placeholder="m@example.com" v-model="email" required />

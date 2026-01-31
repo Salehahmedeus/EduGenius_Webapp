@@ -5,6 +5,7 @@ import { authApi } from '@/infrastructure/api/authApi'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useToast } from '@/composables/useToast'
 import {
   Card,
   CardContent,
@@ -21,8 +22,7 @@ const otp = ref('')
 const password = ref('')
 const passwordConfirmation = ref('')
 const isLoading = ref(false)
-const error = ref('')
-const success = ref('')
+const { toast } = useToast()
 
 onMounted(() => {
   if (route.query.email) {
@@ -31,11 +31,12 @@ onMounted(() => {
 })
 
 const handleResetPassword = async () => {
-  error.value = ''
-  success.value = ''
-
   if (password.value !== passwordConfirmation.value) {
-    error.value = 'Passwords do not match'
+    toast({
+      title: 'Validation Error',
+      description: 'Passwords do not match',
+      variant: 'destructive',
+    })
     return
   }
 
@@ -48,12 +49,21 @@ const handleResetPassword = async () => {
       password: password.value,
       password_confirmation: passwordConfirmation.value,
     })
-    success.value = 'Password reset successfully!'
+    toast({
+      title: 'Success',
+      description: 'Password reset successfully!',
+      variant: 'success',
+    })
     setTimeout(() => {
       router.push('/login')
     }, 1500)
   } catch (e) {
-    error.value = e.response?.data?.message || e.message || 'Failed to reset password'
+    const message = e.response?.data?.message || e.message || 'Failed to reset password'
+    toast({
+      title: 'Reset Error',
+      description: message,
+      variant: 'destructive',
+    })
   } finally {
     isLoading.value = false
   }
@@ -68,12 +78,6 @@ const handleResetPassword = async () => {
         <CardDescription> Enter the OTP and your new password. </CardDescription>
       </CardHeader>
       <CardContent class="grid gap-4">
-        <div v-if="error" class="text-sm text-destructive font-medium">
-          {{ error }}
-        </div>
-        <div v-if="success" class="text-sm text-green-600 font-medium">
-          {{ success }}
-        </div>
         <div class="grid gap-2">
           <Label htmlFor="email">Email</Label>
           <Input id="email" type="email" v-model="email" readonly class="bg-muted" />

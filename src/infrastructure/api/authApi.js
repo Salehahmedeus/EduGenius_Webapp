@@ -33,11 +33,14 @@ export const authApi = {
     return response.data
   },
 
-  async verifyOtp(email, otp) {
-    const response = await apiClient.post(API_ENDPOINTS.auth.verifyOtp, { email, otp })
+  async verifyOtp(data) {
+    const response = await apiClient.post(API_ENDPOINTS.auth.verifyOtp, data)
     // If verification returns a token, save it
-    const data = response.data
-    const token = data.token || data.access_token || (data.data && data.data.token)
+    const responseData = response.data
+    const token =
+      responseData.token ||
+      responseData.access_token ||
+      (responseData.data && responseData.data.token)
 
     if (token) {
       jwtStorage.setAccessToken(token)
@@ -64,8 +67,8 @@ export const authApi = {
     return response.data
   },
 
-  async forgotPassword(email) {
-    const response = await apiClient.post(API_ENDPOINTS.auth.forgotPassword, { email })
+  async forgotPassword(data) {
+    const response = await apiClient.post(API_ENDPOINTS.auth.forgotPassword, data)
     return response.data
   },
 

@@ -6,6 +6,7 @@ import VerifyOtpView from '../views/auth/VerifyOtpView.vue'
 import ForgotPasswordView from '../views/auth/ForgotPasswordView.vue'
 import ResetPasswordView from '../views/auth/ResetPasswordView.vue'
 import DashboardView from '../views/DashboardView.vue'
+import QuizzesView from '../views/QuizzesView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,6 +45,11 @@ const router = createRouter({
       path: '/dashboard/home',
       name: 'dashboard',
       component: DashboardView,
+    },
+    {
+      path: '/quizzes',
+      name: 'quizzes',
+      component: QuizzesView,
     },
     {
       path: '/about',

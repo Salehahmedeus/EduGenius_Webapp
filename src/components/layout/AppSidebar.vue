@@ -2,22 +2,20 @@
 import { computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import {
-  Home,
   LayoutDashboard,
-  BookOpen,
   FileText,
   BrainCircuit,
   Settings,
   HelpCircle,
   GraduationCap,
+  ClipboardCheck,
 } from 'lucide-vue-next'
 
 const route = useRoute()
 
 const menuItems = [
-  { name: 'Home', path: '/', icon: Home },
   { name: 'Dashboard', path: '/dashboard/home', icon: LayoutDashboard },
-  { name: 'Courses', path: '/courses', icon: BookOpen },
+  { name: 'Quizzes', path: '/quizzes', icon: ClipboardCheck },
   { name: 'Materials', path: '/materials', icon: FileText },
   { name: 'AI Tutor', path: '/ai-tutor', icon: BrainCircuit },
   { name: 'Settings', path: '/settings', icon: Settings },

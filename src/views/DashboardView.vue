@@ -19,31 +19,12 @@ onMounted(() => {
   }
   user.value = userData
 })
-
-const handleLogout = async () => {
-  try {
-    await authApi.logout()
-    toast({
-      title: 'Success',
-      description: 'Logged out safely',
-      variant: 'success',
-    })
-    router.push('/login')
-  } catch (e) {
-    toast({
-      title: 'Error',
-      description: 'Failed to logout',
-      variant: 'destructive',
-    })
-  }
-}
 </script>
 
 <template>
   <div class="container mx-auto py-10 px-4">
     <div class="flex justify-between items-center mb-8">
       <h1 class="text-3xl font-bold">Dashboard</h1>
-      <Button variant="destructive" @click="handleLogout">Logout</Button>
     </div>
 
     <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

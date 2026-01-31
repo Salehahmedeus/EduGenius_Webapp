@@ -1,12 +1,17 @@
 <script setup>
 import { computed } from 'vue'
 import { RouterLink, RouterView, useRouter, useRoute } from 'vue-router'
+import { useDark, useToggle } from '@vueuse/core'
+import { Sun, Moon } from 'lucide-vue-next'
 import { Toaster } from '@/components/ui/toast'
 import { Button } from '@/components/ui/button'
 import { authApi } from '@/infrastructure/api/authApi'
 import { jwtStorage } from '@/infrastructure/storage/jwtStorage'
 import { useToast } from '@/composables/useToast'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
+
+const isDark = useDark()
+const toggleDark = useToggle(isDark)
 
 const router = useRouter()
 const route = useRoute()
@@ -73,8 +78,21 @@ const handleLogout = async () => {
             </template>
           </nav>
 
-          <div v-if="isLoggedIn">
-            <Button variant="ghost" size="sm" @click="handleLogout"> Logout </Button>
+          <div class="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              @click="toggleDark()"
+              class="rounded-full w-9 h-9"
+              aria-label="Toggle dark mode"
+            >
+              <Sun v-if="isDark" class="h-4 w-4" />
+              <Moon v-else class="h-4 w-4" />
+            </Button>
+
+            <div v-if="isLoggedIn">
+              <Button variant="ghost" size="sm" @click="handleLogout"> Logout </Button>
+            </div>
           </div>
         </div>
       </header>

@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@plugin "@tailwindcss/typography";
 
 @theme {
   --color-border: hsl(var(--border));
@@ -139,5 +140,22 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Global Markdown Styles for AI Chat */
+  .prose pre {
+    @apply bg-muted p-3 rounded-lg overflow-x-auto my-2;
+  }
+  .prose code {
+    @apply bg-muted px-1 rounded font-mono text-xs;
+  }
+  .prose ul {
+    @apply list-disc list-inside my-2;
+  }
+  .prose ol {
+    @apply list-decimal list-inside my-2;
+  }
+  .prose p {
+    @apply mb-2 last:mb-0;
   }
 }

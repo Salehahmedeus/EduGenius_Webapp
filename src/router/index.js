@@ -7,6 +7,7 @@ import ForgotPasswordView from '../views/auth/ForgotPasswordView.vue'
 import ResetPasswordView from '../views/auth/ResetPasswordView.vue'
 import DashboardView from '../views/DashboardView.vue'
 import QuizzesView from '../views/QuizzesView.vue'
+import AiTutorView from '../views/ai/AiTutorView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -50,6 +51,11 @@ const router = createRouter({
       path: '/quizzes',
       name: 'quizzes',
       component: QuizzesView,
+    },
+    {
+      path: '/ai-tutor',
+      name: 'ai-tutor',
+      component: AiTutorView,
     },
     {
       path: '/about',

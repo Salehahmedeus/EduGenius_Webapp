@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/composables/useToast'
+import { getErrorMessage } from '@/shared/middleware/errorBoundary'
 import {
   Card,
   CardContent,
@@ -34,7 +35,7 @@ const handleForgotPassword = async () => {
       router.push({ path: '/reset-password', query: { email: email.value } })
     }, 1500)
   } catch (e) {
-    const message = e.response?.data?.message || e.message || 'Failed to send OTP'
+    const message = getErrorMessage(e)
     toast({
       title: 'Error',
       description: message,

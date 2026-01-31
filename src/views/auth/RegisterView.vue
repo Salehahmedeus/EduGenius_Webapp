@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/composables/useToast'
+import { getErrorMessage } from '@/shared/middleware/errorBoundary'
 import {
   Card,
   CardContent,
@@ -49,7 +50,6 @@ const handleRegister = async () => {
       name: name.value,
       email: email.value,
       password: password.value,
-      password_confirmation: passwordConfirmation.value,
     })
     toast({
       title: 'Success',
@@ -59,23 +59,8 @@ const handleRegister = async () => {
     // Redirect to OTP verification
     router.push({ path: '/verify-otp', query: { email: email.value } })
   } catch (e) {
-    let message = 'Failed to create account'
-    if (e.response?.data) {
-      if (e.response.data.message) {
-        message = e.response.data.message
-      }
-      if (e.response.data.errors) {
-        const errors = e.response.data.errors
-        const firstError = Object.values(errors)[0]
-        if (Array.isArray(firstError)) {
-          message = firstError[0]
-        } else {
-          message = String(firstError)
-        }
-      }
-    } else {
-      message = e.message
-    }
+    const message = getErrorMessage(e)
+    console.error('Registration failed:', e)
 
     toast({
       title: 'Registration Error',

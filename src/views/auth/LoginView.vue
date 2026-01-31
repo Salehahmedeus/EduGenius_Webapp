@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/composables/useToast'
+import { getErrorMessage } from '@/shared/middleware/errorBoundary'
 import {
   Card,
   CardContent,
@@ -42,7 +43,7 @@ const handleLogin = async () => {
     })
     router.push('/dashboard/home')
   } catch (e) {
-    const message = e.response?.data?.message || e.message || 'Failed to login'
+    const message = getErrorMessage(e)
     toast({
       title: 'Login Error',
       description: message,

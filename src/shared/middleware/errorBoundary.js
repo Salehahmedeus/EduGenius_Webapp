@@ -33,73 +33,70 @@ export const errorBoundary = (error, instance, info) => {
 export const handleApiError = (error) => {
   if (error.response) {
     const { status, data } = error.response
-    
+
     if (status === 401) {
-      throw new AuthError(
-        ERROR_CODES.AUTH.TOKEN_EXPIRED,
-        data.message || 'Session expired',
-        { status }
-      )
+      throw new AuthError(ERROR_CODES.AUTH.TOKEN_EXPIRED, data.message || 'Session expired', {
+        status,
+      })
     }
-    
+
     if (status === 403) {
-      throw new AuthError(
-        ERROR_CODES.AUTH.TOKEN_INVALID,
-        data.message || 'Access denied',
-        { status }
-      )
+      throw new AuthError(ERROR_CODES.AUTH.TOKEN_INVALID, data.message || 'Access denied', {
+        status,
+      })
     }
-    
+
     if (status === 404) {
-      throw new ApiError(
-        ERROR_CODES.API.NOT_FOUND,
-        data.message || 'Resource not found',
-        { status }
-      )
+      throw new ApiError(ERROR_CODES.API.NOT_FOUND, data.message || 'Resource not found', {
+        status,
+      })
     }
-    
+
     if (status === 429) {
-      throw new ApiError(
-        ERROR_CODES.API.RATE_LIMITED,
-        data.message || 'Too many requests',
-        { status }
-      )
+      throw new ApiError(ERROR_CODES.API.RATE_LIMITED, data.message || 'Too many requests', {
+        status,
+      })
     }
-    
+
     if (status >= 500) {
-      throw new ApiError(
-        ERROR_CODES.API.SERVER_ERROR,
-        data.message || 'Server error',
-        { status }
-      )
+      throw new ApiError(ERROR_CODES.API.SERVER_ERROR, data.message || 'Server error', { status })
     }
-    
-    throw new ApiError(
-      ERROR_CODES.API.VALIDATION_ERROR,
-      data.message || 'Invalid request',
-      { status, data }
-    )
+
+    throw new ApiError(ERROR_CODES.API.VALIDATION_ERROR, data.message || 'Invalid request', {
+      status,
+      data,
+    })
   }
-  
+
   if (error.request) {
     throw new ApiError(
       ERROR_CODES.API.NETWORK_ERROR,
-      'Network error. Please check your connection.'
+      'Network error. Please check your connection.',
     )
   }
-  
+
   throw error
 }
 
 export const getErrorMessage = (error) => {
   if (error instanceof AppError) {
+    if (error.details?.data?.errors) {
+      const errors = error.details.data.errors
+      const firstError = Object.values(errors)[0]
+      return Array.isArray(firstError) ? firstError[0] : String(firstError)
+    }
     return error.message
   }
-  
-  if (error.response?.data?.message) {
-    return error.response.data.message
+
+  if (error.response?.data) {
+    const data = error.response.data
+    if (data.errors) {
+      const firstError = Object.values(data.errors)[0]
+      return Array.isArray(firstError) ? firstError[0] : String(firstError)
+    }
+    return data.message || error.message
   }
-  
+
   return error.message || 'An unexpected error occurred'
 }
 
@@ -107,6 +104,6 @@ export const getErrorCode = (error) => {
   if (error instanceof AppError) {
     return error.code
   }
-  
+
   return null
 }

@@ -6,6 +6,7 @@ export const API_ENDPOINTS = {
     login: '/login',
     register: '/register',
     verifyOtp: '/otp/verify',
+    sendOtp: '/otp/send',
     me: '/me',
     logout: '/logout',
     forgotPassword: '/password/email',

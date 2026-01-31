@@ -52,6 +52,36 @@ const handleVerifyOtp = async () => {
     isLoading.value = false
   }
 }
+
+const handleResendOtp = async () => {
+  if (!email.value) {
+    toast({
+      title: 'Error',
+      description: 'Email is required to resend OTP',
+      variant: 'destructive',
+    })
+    return
+  }
+
+  isLoading.value = true
+  try {
+    await authApi.resendOtp({ email: email.value })
+    toast({
+      title: 'Success',
+      description: 'A new OTP has been sent to your email.',
+      variant: 'success',
+    })
+  } catch (e) {
+    const message = e.response?.data?.message || e.message || 'Failed to resend OTP'
+    toast({
+      title: 'Error',
+      description: message,
+      variant: 'destructive',
+    })
+  } finally {
+    isLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -79,7 +109,13 @@ const handleVerifyOtp = async () => {
       </CardFooter>
       <div class="px-6 pb-6 text-center text-sm">
         Didn't receive the code?
-        <a href="#" class="underline underline-offset-4 hover:text-primary"> Resend </a>
+        <button
+          @click="handleResendOtp"
+          class="underline underline-offset-4 hover:text-primary transition-colors disabled:opacity-50"
+          :disabled="isLoading"
+        >
+          Resend
+        </button>
       </div>
     </Card>
   </div>

@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { RouterLink, RouterView, useRouter } from 'vue-router'
+import { RouterLink, RouterView, useRouter, useRoute } from 'vue-router'
 import { Toaster } from '@/components/ui/toast'
 import { Button } from '@/components/ui/button'
 import { authApi } from '@/infrastructure/api/authApi'
@@ -8,9 +8,16 @@ import { jwtStorage } from '@/infrastructure/storage/jwtStorage'
 import { useToast } from '@/composables/useToast'
 
 const router = useRouter()
+const route = useRoute()
 const { toast } = useToast()
 
 const isLoggedIn = computed(() => !!jwtStorage.getAccessToken())
+const isAuthRoute = computed(() => {
+  const authRoutes = ['/login', '/register', '/verify-otp', '/forgot-password', '/reset-password']
+  return authRoutes.includes(route.path)
+})
+
+const showHeader = computed(() => !isAuthRoute.value)
 
 const handleLogout = async () => {
   try {
@@ -33,7 +40,7 @@ const handleLogout = async () => {
 
 <template>
   <div class="min-h-screen bg-background font-sans antialiased">
-    <header class="border-b">
+    <header v-if="showHeader" class="border-b">
       <div class="container flex h-16 items-center justify-between px-4 mx-auto">
         <nav class="flex items-center space-x-4 lg:space-x-6">
           <RouterLink to="/" class="text-sm font-medium transition-colors hover:text-primary">

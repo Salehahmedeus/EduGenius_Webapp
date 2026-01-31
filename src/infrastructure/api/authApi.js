@@ -54,6 +54,11 @@ export const authApi = {
     return response.data
   },
 
+  async resendOtp(data) {
+    const response = await apiClient.post(API_ENDPOINTS.auth.sendOtp, data)
+    return response.data
+  },
+
   async logout() {
     try {
       await apiClient.post(API_ENDPOINTS.auth.logout)

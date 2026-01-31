@@ -15,8 +15,7 @@ export const aiApi = {
    * @param {number|string} id - The conversation ID
    */
   async fetchHistory(id) {
-    // API might expect /ai/history/{id} based on user description
-    const response = await apiClient.get(`${API_ENDPOINTS.ai.history}/${id}`)
+    const response = await apiClient.get(API_ENDPOINTS.ai.history.replace(':id', id))
     return response.data
   },
 

@@ -29,7 +29,36 @@ export const useAiStore = defineStore('ai', () => {
 
     try {
       const history = await aiApi.fetchHistory(id)
-      messages.value = Array.isArray(history) ? history : history.data || []
+      const rawData = Array.isArray(history) ? history : history.data || []
+
+      // Transform interaction records (query/response) into individual messages
+      const flattenedMessages = []
+      rawData.forEach((item) => {
+        // Handle if backend already returns role/content
+        if (item.role && item.content) {
+          flattenedMessages.push(item)
+        }
+        // Handle if backend returns interaction pairs (query/response)
+        else if (item.query && item.response) {
+          flattenedMessages.push({
+            role: 'user',
+            content: item.query,
+            file_name: item.file_name || null,
+          })
+          flattenedMessages.push({
+            role: 'assistant',
+            content: item.response,
+          })
+        }
+        // Fallback for partial records
+        else if (item.query) {
+          flattenedMessages.push({ role: 'user', content: item.query })
+        } else if (item.response) {
+          flattenedMessages.push({ role: 'assistant', content: item.response })
+        }
+      })
+
+      messages.value = flattenedMessages
     } catch (e) {
       console.error('Failed to load chat history', e)
     } finally {

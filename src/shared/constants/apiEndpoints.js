@@ -13,7 +13,7 @@ export const API_ENDPOINTS = {
     resetPassword: '/password/reset',
   },
   ai: {
-    history: '/ai/history',
+    history: '/ai/history/:id',
     ask: '/ai/ask',
     chats: '/ai/chats',
     chat: '/ai/chats/:id',

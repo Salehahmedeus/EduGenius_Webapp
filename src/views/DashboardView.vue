@@ -1,23 +1,17 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { authApi } from '@/infrastructure/api/authApi'
-import { jwtStorage } from '@/infrastructure/storage/jwtStorage'
-import { Button } from '@/components/ui/button'
+import { useAuthStore } from '@/stores/authStore'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { useToast } from '@/composables/useToast'
 
 const router = useRouter()
-const { toast } = useToast()
-const user = ref(null)
+const authStore = useAuthStore()
+const user = computed(() => authStore.user)
 
 onMounted(() => {
-  const userData = jwtStorage.getUserData()
-  if (!userData) {
+  if (!authStore.isLoggedIn) {
     router.push('/login')
-    return
   }
-  user.value = userData
 })
 </script>
 

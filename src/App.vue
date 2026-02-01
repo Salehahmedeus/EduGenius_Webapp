@@ -10,24 +10,23 @@ import { authApi } from '@/infrastructure/api/authApi'
 import { jwtStorage } from '@/infrastructure/storage/jwtStorage'
 import { useToast } from '@/composables/useToast'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
+import { useAuthStore } from '@/stores/authStore'
 
-const isDark = useDark()
-const toggleDark = useToggle(isDark)
-const accessToken = useLocalStorage(APP_CONSTANTS.STORAGE_KEYS.ACCESS_TOKEN, null)
+const authStore = useAuthStore()
 const isMobileMenuOpen = ref(false)
 
 const router = useRouter()
 const route = useRoute()
 const { toast } = useToast()
 
-const isLoggedIn = computed(() => !!accessToken.value)
+const isLoggedIn = computed(() => authStore.isLoggedIn)
 const isAuthRoute = computed(() => {
   const authRoutes = ['/login', '/register', '/verify-otp', '/forgot-password', '/reset-password']
   return authRoutes.includes(route.path)
 })
 
 const showHeader = computed(() => !isAuthRoute.value)
-const showSidebar = computed(() => isLoggedIn.value && !isAuthRoute.value)
+const showSidebar = computed(() => authStore.isLoggedIn && !isAuthRoute.value)
 
 const toggleMobileMenu = () => {
   isMobileMenuOpen.value = !isMobileMenuOpen.value
@@ -58,6 +57,10 @@ const handleLogout = async () => {
     })
   }
 }
+
+// Add dark mode back since I accidentally removed it in the previous chunk
+const isDark = useDark()
+const toggleDark = useToggle(isDark)
 </script>
 
 <template>

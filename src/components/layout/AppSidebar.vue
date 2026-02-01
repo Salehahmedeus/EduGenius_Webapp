@@ -2,6 +2,7 @@
 import { onMounted, computed, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAiStore } from '@/stores/aiStore'
+import { useAuthStore } from '@/stores/authStore'
 import { jwtStorage } from '@/infrastructure/storage/jwtStorage'
 import {
   LayoutDashboard,
@@ -22,14 +23,10 @@ const route = useRoute()
 const router = useRouter()
 const aiStore = useAiStore()
 
+const authStore = useAuthStore()
+
 // Safely get user data
-const user = computed(() => {
-  try {
-    return jwtStorage.getUserData()
-  } catch (e) {
-    return null
-  }
-})
+const user = computed(() => authStore.user)
 
 const navItems = [
   { name: 'Dashboard', path: '/dashboard/home', icon: LayoutDashboard },
@@ -76,7 +73,7 @@ const handleDeleteChat = async (id) => {
 }
 
 const handleLogout = () => {
-  jwtStorage.clearTokens() // Corrected from clearAll
+  authStore.clearAuth()
   emit('close')
   router.push('/login')
 }

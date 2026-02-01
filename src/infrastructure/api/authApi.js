@@ -1,6 +1,7 @@
 import apiClient from './apiClient'
 import { API_ENDPOINTS } from '@/shared/constants/apiEndpoints'
 import { jwtStorage } from '../storage/jwtStorage'
+import { useAuthStore } from '@/stores/authStore'
 
 export const authApi = {
   async login(credentials) {
@@ -9,16 +10,17 @@ export const authApi = {
     const data = response.data
     const token = data.token || data.access_token || (data.data && data.data.token)
 
+    const authStore = useAuthStore()
     if (token) {
-      jwtStorage.setAccessToken(token)
+      authStore.setTokens(token)
       // If user data is returned, save it. Otherwise fetch it.
       if (data.user || (data.data && data.data.user)) {
-        jwtStorage.setUserData(data.user || data.data.user)
+        authStore.setUser(data.user || data.data.user)
       } else {
         // Fetch user profile if not in login response
         try {
           const profile = await this.getProfile()
-          jwtStorage.setUserData(profile)
+          authStore.setUser(profile)
         } catch (e) {
           console.warn('Failed to fetch profile after login', e)
         }
@@ -42,11 +44,12 @@ export const authApi = {
       responseData.access_token ||
       (responseData.data && responseData.data.token)
 
+    const authStore = useAuthStore()
     if (token) {
-      jwtStorage.setAccessToken(token)
+      authStore.setTokens(token)
       try {
         const profile = await this.getProfile()
-        jwtStorage.setUserData(profile)
+        authStore.setUser(profile)
       } catch (e) {
         console.warn('Failed to fetch profile after OTP verification', e)
       }
@@ -60,10 +63,11 @@ export const authApi = {
   },
 
   async logout() {
+    const authStore = useAuthStore()
     try {
       await apiClient.post(API_ENDPOINTS.auth.logout)
     } finally {
-      jwtStorage.clearTokens()
+      authStore.clearAuth()
     }
   },
 

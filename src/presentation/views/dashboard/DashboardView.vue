@@ -70,9 +70,10 @@ const handleGenerateReport = async () => {
     reportData.value = response.data || response // Adjust based on API structure
     showReportModal.value = true
   } catch (e) {
+    console.error('Report generation error:', e)
     toast({
-      title: 'Error',
-      description: 'Failed to generate report',
+      title: 'Error generating report',
+      description: e.response?.data?.message || e.message || 'Failed to generate report',
       variant: 'destructive',
     })
   } finally {
@@ -81,24 +82,48 @@ const handleGenerateReport = async () => {
 }
 
 // Chart Helpers
-const getTrendPoints = () => {
+const getSmoothTrendPath = () => {
   const data = charts.value?.performance_trend || []
   if (!data.length) return ''
 
-  // Normalize scores to 0-100 scale for plotting
-  // Graph height = 100, Width = 100%
+  // Normalize scores to 0-100 scale
+  // Graph height = 60, Width = 100
   const height = 60
   const width = 100
   const scores = data.map((d) => parseFloat(d.avg_score))
-  const step = width / (scores.length - 1 || 1)
+  const points = scores.map((score, index) => {
+    const x = (index / (scores.length - 1 || 1)) * width
+    const y = height - (score / 100) * height
+    return [x, y]
+  })
 
-  return scores
-    .map((score, index) => {
-      const x = index * step
-      const y = height - (score / 100) * height // Invert Y because SVG 0 is top
-      return `${x},${y}`
-    })
-    .join(' ')
+  if (points.length < 2) return ''
+
+  // Build SVG path
+  let d = `M ${points[0][0]} ${points[0][1]}`
+
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = i > 0 ? points[i - 1] : points[0]
+    const p1 = points[i]
+    const p2 = points[i + 1]
+    const p3 = i !== points.length - 2 ? points[i + 2] : p2
+
+    const cp1x = p1[0] + (p2[0] - p0[0]) / 6
+    const cp1y = p1[1] + (p2[1] - p0[1]) / 6
+
+    const cp2x = p2[0] - (p3[0] - p1[0]) / 6
+    const cp2y = p2[1] - (p3[1] - p1[1]) / 6
+
+    d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2[0]} ${p2[1]}`
+  }
+
+  return d
+}
+
+const getAreaPath = () => {
+  const path = getSmoothTrendPath()
+  if (!path) return ''
+  return `${path} L 100,60 L 0,60 Z`
 }
 
 const getBarHeight = (score) => {
@@ -148,7 +173,7 @@ onMounted(() => {
 
     <template v-else>
       <!-- Stats Grid -->
-      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card class="rounded-2xl border-muted/50 shadow-sm hover:shadow-md transition-all">
           <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle class="text-sm font-medium"> Uploaded Materials </CardTitle>
@@ -177,16 +202,6 @@ onMounted(() => {
           <CardContent>
             <div class="text-2xl font-bold">{{ parseFloat(stats.avg_score || 0).toFixed(1) }}%</div>
             <p class="text-xs text-muted-foreground">Across all quizzes</p>
-          </CardContent>
-        </Card>
-        <Card class="rounded-2xl border-muted/50 shadow-sm hover:shadow-md transition-all">
-          <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle class="text-sm font-medium"> Study Sessions </CardTitle>
-            <Clock class="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div class="text-2xl font-bold">{{ stats.study_sessions || 0 }}</div>
-            <p class="text-xs text-muted-foreground">Active learning hours</p>
           </CardContent>
         </Card>
       </div>
@@ -233,63 +248,64 @@ onMounted(() => {
             <CardDescription>Your quiz scores over time</CardDescription>
           </CardHeader>
           <CardContent class="pl-2">
-            <div class="h-[200px] w-full mt-4 flex items-end justify-center relative">
+            <div class="h-[200px] w-full mt-4 flex items-end justify-center relative group">
               <svg
                 v-if="charts.performance_trend?.length > 1"
                 viewBox="0 0 100 60"
                 class="w-full h-full overflow-visible"
                 preserveAspectRatio="none"
               >
+                <!-- Defs for Gradient -->
+                <defs>
+                  <linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stop-color="hsl(var(--primary))" stop-opacity="0.2" />
+                    <stop offset="100%" stop-color="hsl(var(--primary))" stop-opacity="0" />
+                  </linearGradient>
+                </defs>
+
                 <!-- Grid Lines -->
                 <line
+                  v-for="i in 5"
+                  :key="i"
                   x1="0"
-                  y1="0"
+                  :y1="i * 12"
                   x2="100"
-                  y2="0"
+                  :y2="i * 12"
                   stroke="currentColor"
-                  stroke-opacity="0.1"
-                  stroke-width="0.5"
-                />
-                <line
-                  x1="0"
-                  y1="30"
-                  x2="100"
-                  y2="30"
-                  stroke="currentColor"
-                  stroke-opacity="0.1"
-                  stroke-width="0.5"
-                />
-                <line
-                  x1="0"
-                  y1="60"
-                  x2="100"
-                  y2="60"
-                  stroke="currentColor"
-                  stroke-opacity="0.1"
+                  stroke-opacity="0.05"
                   stroke-width="0.5"
                 />
 
-                <!-- Data Path -->
-                <polyline
-                  :points="getTrendPoints()"
+                <!-- Area Fill -->
+                <path
+                  :d="getAreaPath()"
+                  fill="url(#chartGradient)"
+                  stroke="none"
+                  class="transition-all duration-500"
+                />
+
+                <!-- Line Path -->
+                <path
+                  :d="getSmoothTrendPath()"
                   fill="none"
                   stroke="hsl(var(--primary))"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                  class="vector-effect-non-scaling-stroke"
+                  class="vector-effect-non-scaling-stroke drop-shadow-sm"
                 />
 
-                <!-- Helper Dots -->
+                <!-- Interactive Dots -->
                 <circle
                   v-for="(point, i) in charts.performance_trend"
                   :key="i"
-                  :cx="(i * 100) / (charts.performance_trend.length - 1)"
+                  :cx="(i / (charts.performance_trend.length - 1)) * 100"
                   :cy="60 - (parseFloat(point.avg_score) / 100) * 60"
-                  r="1.5"
+                  r="0"
                   fill="hsl(var(--background))"
                   stroke="hsl(var(--primary))"
-                  stroke-width="1"
+                  stroke-width="2"
+                  class="group-hover:r-[2] transition-all duration-300"
                 />
               </svg>
               <div

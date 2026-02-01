@@ -8,6 +8,7 @@ import ResetPasswordView from '../presentation/views/auth/ResetPasswordView.vue'
 import DashboardView from '../presentation/views/dashboard/DashboardView.vue'
 import QuizzesView from '../presentation/views/quizzes/QuizzesView.vue'
 import AiTutorView from '../presentation/views/tutor/AiTutorView.vue'
+import MaterialsView from '../presentation/views/content/MaterialsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -56,6 +57,11 @@ const router = createRouter({
       path: '/ai-tutor',
       name: 'ai-tutor',
       component: AiTutorView,
+    },
+    {
+      path: '/materials',
+      name: 'materials',
+      component: MaterialsView,
     },
     {
       path: '/about',

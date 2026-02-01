@@ -21,11 +21,7 @@ const otp = ref('')
 const isLoading = ref(false)
 const { toast } = useToast()
 
-onMounted(() => {
-  if (route.query.email) {
-    email.value = route.query.email
-  }
-})
+// onMounted merged below
 
 const handleVerifyOtp = async () => {
   isLoading.value = true
@@ -70,6 +66,7 @@ const handleResendOtp = async () => {
       description: 'A new OTP has been sent to your email.',
       variant: 'success',
     })
+    startResendTimer()
   } catch (e) {
     const message = e.response?.data?.message || e.message || 'Failed to resend OTP'
     toast({
@@ -81,6 +78,30 @@ const handleResendOtp = async () => {
     isLoading.value = false
   }
 }
+
+const resendTimer = ref(60) // Start with 60s cooldown on mount
+let timerInterval = null
+
+const startResendTimer = () => {
+  resendTimer.value = 60
+  if (timerInterval) clearInterval(timerInterval)
+
+  timerInterval = setInterval(() => {
+    if (resendTimer.value > 0) {
+      resendTimer.value--
+    } else {
+      clearInterval(timerInterval)
+      timerInterval = null
+    }
+  }, 1000)
+}
+
+onMounted(() => {
+  if (route.query.email) {
+    email.value = route.query.email
+  }
+  startResendTimer()
+})
 </script>
 
 <template>
@@ -107,14 +128,19 @@ const handleResendOtp = async () => {
         </Button>
       </CardFooter>
       <div class="px-6 pb-6 text-center text-sm">
-        Didn't receive the code?
-        <button
-          @click="handleResendOtp"
-          class="underline underline-offset-4 hover:text-primary transition-colors disabled:opacity-50"
-          :disabled="isLoading"
-        >
-          Resend
-        </button>
+        <div v-if="resendTimer > 0" class="text-muted-foreground">
+          Resend code in {{ resendTimer }}s
+        </div>
+        <div v-else>
+          Didn't receive the code?
+          <button
+            @click="handleResendOtp"
+            class="underline underline-offset-4 hover:text-primary transition-colors disabled:opacity-50"
+            :disabled="isLoading"
+          >
+            Resend
+          </button>
+        </div>
       </div>
     </Card>
   </div>

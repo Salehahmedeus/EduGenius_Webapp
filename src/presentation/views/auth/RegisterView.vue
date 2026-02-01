@@ -32,6 +32,25 @@ const handleRegister = async () => {
     return
   }
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(email.value)) {
+    toast({
+      title: 'Validation Error',
+      description: 'Please enter a valid email address',
+      variant: 'destructive',
+    })
+    return
+  }
+
+  if (password.value.length < 8) {
+    toast({
+      title: 'Validation Error',
+      description: 'Password must be at least 8 characters long',
+      variant: 'destructive',
+    })
+    return
+  }
+
   if (password.value !== passwordConfirmation.value) {
     toast({
       title: 'Error',

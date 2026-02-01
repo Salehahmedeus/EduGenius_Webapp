@@ -30,6 +30,16 @@ const handleLogin = async () => {
     return
   }
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(email.value)) {
+    toast({
+      title: 'Validation Error',
+      description: 'Please enter a valid email address',
+      variant: 'destructive',
+    })
+    return
+  }
+
   isLoading.value = true
 
   try {

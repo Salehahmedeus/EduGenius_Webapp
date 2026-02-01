@@ -32,6 +32,7 @@ const submitted = ref(false)
 const result = ref(null)
 const isReviewMode = ref(false)
 const showExplanation = ref(false)
+const submissionDetails = ref({}) // Store submission details by question_id
 
 const currentQuestion = computed(() => questions.value[currentIndex.value] || null)
 const isFirstQuestion = computed(() => currentIndex.value === 0)
@@ -132,11 +133,18 @@ const handleSubmit = async () => {
       })),
     })
 
+    // Store submission details for review
+    const details = response.data?.details || response.details || []
+    details.forEach((detail) => {
+      submissionDetails.value[detail.question_id] = detail
+    })
+
     submitted.value = true
     result.value = {
-      score: response.score || response.result?.score || 0,
-      correct: response.correct_count || response.result?.correct || 0,
-      total: questions.value.length,
+      score: response.data?.score ?? response.score ?? 0,
+      correct: response.data?.correct_answers ?? response.correct_count ?? 0,
+      total: response.data?.total_questions ?? questions.value.length,
+      feedback: response.data?.feedback || response.feedback || '',
     }
 
     toast({
@@ -161,13 +169,41 @@ const startReview = () => {
   showExplanation.value = false
 }
 
+// Get user's answer details from submission
+const getQuestionDetails = (questionId) => {
+  return submissionDetails.value[questionId] || null
+}
+
+// Get user's selected option index from submission details or local answers
+const getUserSelectedIndex = (question) => {
+  const details = getQuestionDetails(question.id)
+  if (details && details.selected_option !== null && details.selected_option !== undefined) {
+    // If selected_option is a number (index), use it directly
+    if (typeof details.selected_option === 'number') {
+      return details.selected_option
+    }
+    // If it's a string (answer text), find the index
+    return question.options.findIndex(
+      (opt) => opt === details.selected_option || opt === details.user_answer,
+    )
+  }
+  // Fall back to local answers
+  return answers.value[question.id] ?? -1
+}
+
+// Check if user selected this option
+const isUserSelectedOption = (question, optionIndex) => {
+  return getUserSelectedIndex(question) === optionIndex
+}
+
 const getOptionClass = (question, optionIndex) => {
-  const isSelected = answers.value[question.id] === optionIndex
+  const isSelected = isUserSelectedOption(question, optionIndex)
   const correctIndex = getCorrectAnswerIndex(question)
   const isCorrectOption = optionIndex === correctIndex
 
   if (!submitted.value && !isReviewMode.value) {
-    return isSelected
+    const localSelected = answers.value[question.id] === optionIndex
+    return localSelected
       ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
       : 'border-muted hover:border-primary/50 hover:bg-muted/50'
   }
@@ -187,8 +223,14 @@ const isOptionCorrect = (question, optionIndex) => {
 }
 
 const isOptionWrong = (question, optionIndex) => {
-  const isSelected = answers.value[question.id] === optionIndex
+  const isSelected = isUserSelectedOption(question, optionIndex)
   return isSelected && !isOptionCorrect(question, optionIndex)
+}
+
+// Get explanation from submission details or question
+const getExplanation = (question) => {
+  const details = getQuestionDetails(question.id)
+  return details?.explanation || question.explanation || ''
 }
 
 onMounted(fetchQuiz)
@@ -335,7 +377,9 @@ onMounted(fetchQuiz)
                       ? 'border-green-500 bg-green-500 text-white'
                       : isOptionWrong(currentQuestion, optionIndex)
                         ? 'border-red-500 bg-red-500 text-white'
-                        : 'border-muted-foreground/30'
+                        : isUserSelectedOption(currentQuestion, optionIndex)
+                          ? 'border-orange-500 bg-orange-500 text-white'
+                          : 'border-muted-foreground/30'
                     : answers[currentQuestion.id] === optionIndex
                       ? 'border-primary bg-primary text-primary-foreground'
                       : 'border-muted-foreground/30',
@@ -346,9 +390,9 @@ onMounted(fetchQuiz)
               <div class="flex-1 flex flex-col gap-1">
                 <span>{{ option }}</span>
                 <!-- Labels for review mode -->
-                <div v-if="isReviewMode || submitted" class="flex gap-2">
+                <div v-if="isReviewMode || submitted" class="flex gap-2 flex-wrap">
                   <span
-                    v-if="answers[currentQuestion.id] === optionIndex"
+                    v-if="isUserSelectedOption(currentQuestion, optionIndex)"
                     class="text-[10px] font-medium px-1.5 py-0.5 rounded"
                     :class="
                       isOptionCorrect(currentQuestion, optionIndex)
@@ -361,7 +405,7 @@ onMounted(fetchQuiz)
                   <span
                     v-if="
                       isOptionCorrect(currentQuestion, optionIndex) &&
-                      answers[currentQuestion.id] !== optionIndex
+                      !isUserSelectedOption(currentQuestion, optionIndex)
                     "
                     class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-green-500/20 text-green-600"
                   >
@@ -381,7 +425,7 @@ onMounted(fetchQuiz)
           </div>
 
           <!-- Explanation Section (Review Mode) -->
-          <div v-if="(isReviewMode || submitted) && currentQuestion.explanation" class="mt-6">
+          <div v-if="(isReviewMode || submitted) && getExplanation(currentQuestion)" class="mt-6">
             <Button
               variant="outline"
               size="sm"
@@ -399,7 +443,7 @@ onMounted(fetchQuiz)
               <div class="flex items-start gap-3">
                 <Lightbulb class="h-5 w-5 text-yellow-500 shrink-0 mt-0.5" />
                 <p class="text-sm text-muted-foreground leading-relaxed">
-                  {{ currentQuestion.explanation }}
+                  {{ getExplanation(currentQuestion) }}
                 </p>
               </div>
             </div>

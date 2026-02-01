@@ -12,7 +12,6 @@ import {
   GraduationCap,
   ClipboardCheck,
   Plus,
-  MessageSquare,
   LogOut,
   Trash2,
   ChevronRight,
@@ -163,8 +162,7 @@ onMounted(() => {
             ]"
             @click="selectChat(chat.id)"
           >
-            <MessageSquare class="h-3.5 w-3.5 shrink-0 opacity-40 group-hover:opacity-70" />
-            <span class="ml-3 truncate flex-1 leading-relaxed">
+            <span class="truncate flex-1 leading-relaxed">
               {{ chat.context_name || 'Untitled Chat' }}
             </span>
 

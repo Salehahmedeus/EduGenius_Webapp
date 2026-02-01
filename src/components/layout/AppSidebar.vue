@@ -9,7 +9,6 @@ import {
   FileText,
   BrainCircuit,
   Settings,
-  GraduationCap,
   ClipboardCheck,
   Plus,
   LogOut,
@@ -91,10 +90,8 @@ onMounted(() => {
     <!-- Header: Brand & New Chat -->
     <div class="p-4 space-y-4">
       <div class="flex items-center px-1">
-        <div
-          class="h-7 w-7 bg-primary rounded-lg flex items-center justify-center shrink-0 shadow-lg"
-        >
-          <GraduationCap class="h-4 w-4 text-white" />
+        <div class="h-8 w-8 rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
+          <img src="/logo.png" alt="EduGenius Logo" class="h-full w-full object-contain" />
         </div>
         <span class="ml-2.5 text-base font-bold tracking-tight text-white/90">EduGenius</span>
       </div>

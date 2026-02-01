@@ -9,6 +9,7 @@ import DashboardView from '../presentation/views/dashboard/DashboardView.vue'
 import QuizzesView from '../presentation/views/quizzes/QuizzesView.vue'
 import AiTutorView from '../presentation/views/tutor/AiTutorView.vue'
 import MaterialsView from '../presentation/views/content/MaterialsView.vue'
+import QuizTakingView from '../presentation/views/quizzes/QuizTakingView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -52,6 +53,11 @@ const router = createRouter({
       path: '/quizzes',
       name: 'quizzes',
       component: QuizzesView,
+    },
+    {
+      path: '/quiz/:id',
+      name: 'quiz-taking',
+      component: QuizTakingView,
     },
     {
       path: '/ai-tutor',

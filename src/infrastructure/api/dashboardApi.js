@@ -10,7 +10,7 @@ export const dashboardApi = {
 
   async getProgressReport() {
     // Postman: POST /api/dashboard/report
-    const response = await apiClient.post(API_ENDPOINTS.dashboard.report)
+    const response = await apiClient.post(API_ENDPOINTS.dashboard.report, {})
     return response.data
   },
 }

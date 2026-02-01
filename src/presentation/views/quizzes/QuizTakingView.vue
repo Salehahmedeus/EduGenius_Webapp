@@ -343,7 +343,32 @@ onMounted(fetchQuiz)
               >
                 {{ String.fromCharCode(65 + optionIndex) }}
               </div>
-              <span class="flex-1">{{ option }}</span>
+              <div class="flex-1 flex flex-col gap-1">
+                <span>{{ option }}</span>
+                <!-- Labels for review mode -->
+                <div v-if="isReviewMode || submitted" class="flex gap-2">
+                  <span
+                    v-if="answers[currentQuestion.id] === optionIndex"
+                    class="text-[10px] font-medium px-1.5 py-0.5 rounded"
+                    :class="
+                      isOptionCorrect(currentQuestion, optionIndex)
+                        ? 'bg-green-500/20 text-green-600'
+                        : 'bg-red-500/20 text-red-600'
+                    "
+                  >
+                    Your Answer
+                  </span>
+                  <span
+                    v-if="
+                      isOptionCorrect(currentQuestion, optionIndex) &&
+                      answers[currentQuestion.id] !== optionIndex
+                    "
+                    class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-green-500/20 text-green-600"
+                  >
+                    Correct Answer
+                  </span>
+                </div>
+              </div>
               <CheckCircle
                 v-if="(isReviewMode || submitted) && isOptionCorrect(currentQuestion, optionIndex)"
                 class="h-5 w-5 text-green-500"

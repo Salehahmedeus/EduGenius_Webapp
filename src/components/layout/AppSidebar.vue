@@ -7,7 +7,6 @@ import { jwtStorage } from '@/infrastructure/storage/jwtStorage'
 import {
   LayoutDashboard,
   FileText,
-  BrainCircuit,
   Settings,
   ClipboardCheck,
   Plus,
@@ -15,7 +14,6 @@ import {
   Trash2,
   ChevronRight,
 } from 'lucide-vue-next'
-import { Button } from '@/components/ui/button'
 
 const route = useRoute()
 const router = useRouter()
@@ -30,7 +28,6 @@ const navItems = [
   { name: 'Dashboard', path: '/dashboard/home', icon: LayoutDashboard },
   { name: 'Quizzes', path: '/quizzes', icon: ClipboardCheck },
   { name: 'Materials', path: '/materials', icon: FileText },
-  { name: 'AI Tutor', path: '/ai-tutor', icon: BrainCircuit },
 ]
 
 const isActive = (path) => {

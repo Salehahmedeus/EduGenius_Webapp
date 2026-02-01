@@ -2,10 +2,8 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { authApi } from '@/infrastructure/api/authApi'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { useToast } from '@/composables/useToast'
+import { Button, Input, Label } from '@/presentation/components/common/ui'
+import { useToast } from '@/presentation/composables/useToast'
 import { getErrorMessage } from '@/shared/middleware/errorBoundary'
 import {
   Card,
@@ -14,7 +12,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from '@/presentation/components/common/ui/card'
 
 const router = useRouter()
 const name = ref('')

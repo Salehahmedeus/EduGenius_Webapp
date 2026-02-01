@@ -1,5 +1,5 @@
 <script setup>
-import { Button } from '@/components/ui/button'
+import { Button } from '@/presentation/components/common/ui'
 </script>
 
 <template>

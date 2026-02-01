@@ -1,9 +1,10 @@
 <script setup>
 import { onMounted, computed, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import { useAiStore } from '@/stores/aiStore'
-import { useAuthStore } from '@/stores/authStore'
+import { useAiStore } from '@/presentation/stores/aiStore'
+import { useAuthStore } from '@/presentation/stores/authStore'
 import { jwtStorage } from '@/infrastructure/storage/jwtStorage'
+import { Button } from '@/presentation/components/common/ui'
 import {
   LayoutDashboard,
   FileText,

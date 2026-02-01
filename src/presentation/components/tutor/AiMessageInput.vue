@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { Send, Paperclip, X, FileText } from 'lucide-vue-next'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/presentation/components/common/ui'
 
 const props = defineProps({
   isLoading: {

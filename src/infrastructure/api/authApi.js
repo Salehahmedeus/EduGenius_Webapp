@@ -1,7 +1,7 @@
 import apiClient from './apiClient'
 import { API_ENDPOINTS } from '@/shared/constants/apiEndpoints'
 import { jwtStorage } from '../storage/jwtStorage'
-import { useAuthStore } from '@/stores/authStore'
+import { useAuthStore } from '@/presentation/stores/authStore'
 
 export const authApi = {
   async login(credentials) {

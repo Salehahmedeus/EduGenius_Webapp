@@ -1,5 +1,5 @@
 <script setup>
-import { useToast } from '@/composables/useToast'
+import { useToast } from '@/presentation/composables/useToast'
 import Toast from './Toast.vue'
 
 const { toasts, dismiss } = useToast()

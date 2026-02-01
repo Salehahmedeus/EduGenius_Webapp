@@ -1,13 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import LoginView from '../views/auth/LoginView.vue'
-import RegisterView from '../views/auth/RegisterView.vue'
-import VerifyOtpView from '../views/auth/VerifyOtpView.vue'
-import ForgotPasswordView from '../views/auth/ForgotPasswordView.vue'
-import ResetPasswordView from '../views/auth/ResetPasswordView.vue'
-import DashboardView from '../views/DashboardView.vue'
-import QuizzesView from '../views/QuizzesView.vue'
-import AiTutorView from '../views/ai/AiTutorView.vue'
+import HomeView from '../presentation/views/dashboard/HomeView.vue'
+import LoginView from '../presentation/views/auth/LoginView.vue'
+import RegisterView from '../presentation/views/auth/RegisterView.vue'
+import VerifyOtpView from '../presentation/views/auth/VerifyOtpView.vue'
+import ForgotPasswordView from '../presentation/views/auth/ForgotPasswordView.vue'
+import ResetPasswordView from '../presentation/views/auth/ResetPasswordView.vue'
+import DashboardView from '../presentation/views/dashboard/DashboardView.vue'
+import QuizzesView from '../presentation/views/quizzes/QuizzesView.vue'
+import AiTutorView from '../presentation/views/tutor/AiTutorView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -60,7 +60,7 @@ const router = createRouter({
     {
       path: '/about',
       name: 'about',
-      component: () => import('../views/AboutView.vue'),
+      component: () => import('../presentation/views/common/AboutView.vue'),
     },
   ],
 })

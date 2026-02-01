@@ -1,8 +1,8 @@
 <script setup>
 import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/authStore'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { useAuthStore } from '@/presentation/stores/authStore'
+import { Card, CardHeader, CardTitle, CardContent } from '@/presentation/components/common/ui/card'
 
 const router = useRouter()
 const authStore = useAuthStore()

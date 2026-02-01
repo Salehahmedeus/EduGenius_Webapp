@@ -4,13 +4,13 @@ import { RouterLink, RouterView, useRouter, useRoute } from 'vue-router'
 import { useDark, useToggle, useLocalStorage } from '@vueuse/core'
 import { Sun, Moon, Menu, X, LogOut } from 'lucide-vue-next'
 import { APP_CONSTANTS } from '@/shared/constants/appConstants'
-import { Toaster } from '@/components/ui/toast'
-import { Button } from '@/components/ui/button'
+import { Toaster } from '@/presentation/components/common/ui/toast'
+import { Button } from '@/presentation/components/common/ui'
 import { authApi } from '@/infrastructure/api/authApi'
 import { jwtStorage } from '@/infrastructure/storage/jwtStorage'
-import { useToast } from '@/composables/useToast'
-import AppSidebar from '@/components/layout/AppSidebar.vue'
-import { useAuthStore } from '@/stores/authStore'
+import { useToast } from '@/presentation/composables/useToast'
+import AppSidebar from '@/presentation/components/common/layout/AppSidebar.vue'
+import { useAuthStore } from '@/presentation/stores/authStore'
 
 const authStore = useAuthStore()
 const isMobileMenuOpen = ref(false)

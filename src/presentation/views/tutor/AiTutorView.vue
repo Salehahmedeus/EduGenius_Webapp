@@ -1,10 +1,10 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { aiApi } from '@/infrastructure/api/aiApi'
-import { useAiStore } from '@/stores/aiStore'
-import { useToast } from '@/composables/useToast'
-import AiChatWindow from '@/components/ai/AiChatWindow.vue'
-import AiMessageInput from '@/components/ai/AiMessageInput.vue'
+import { useAiStore } from '@/presentation/stores/aiStore'
+import { useToast } from '@/presentation/composables/useToast'
+import AiChatWindow from '@/presentation/components/tutor/AiChatWindow.vue'
+import AiMessageInput from '@/presentation/components/tutor/AiMessageInput.vue'
 
 const { toast } = useToast()
 const aiStore = useAiStore()

@@ -84,21 +84,19 @@ onMounted(() => {
 </script>
 
 <template>
-  <aside
-    class="h-full w-64 bg-[#0d0d0d] text-white flex flex-col shrink-0 border-r border-white/10"
-  >
+  <aside class="h-full w-64 bg-card text-card-foreground flex flex-col shrink-0 border-r">
     <!-- Header: Brand & New Chat -->
     <div class="p-4 space-y-4">
       <div class="flex items-center px-1">
         <div class="h-8 w-8 rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
           <img src="/logo.png" alt="EduGenius Logo" class="h-full w-full object-contain" />
         </div>
-        <span class="ml-2.5 text-base font-bold tracking-tight text-white/90">EduGenius</span>
+        <span class="ml-2.5 text-base font-bold tracking-tight text-foreground">EduGenius</span>
       </div>
 
       <Button
         variant="ghost"
-        class="w-full justify-start gap-2 h-10 px-3 bg-white/5 hover:bg-white/10 text-white/90 border-transparent transition-all rounded-xl"
+        class="w-full justify-start gap-2 h-10 px-3 bg-muted hover:bg-muted/80 text-foreground border-transparent transition-all rounded-xl"
         @click="handleNewChat"
       >
         <Plus class="h-4 w-4" />
@@ -110,7 +108,9 @@ onMounted(() => {
     <div class="flex-1 flex flex-col overflow-hidden">
       <!-- App Tabs -->
       <div class="px-3 py-2 space-y-0.5">
-        <div class="px-2 pb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">
+        <div
+          class="px-2 pb-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest"
+        >
           Main Menu
         </div>
         <RouterLink
@@ -120,8 +120,8 @@ onMounted(() => {
           class="flex items-center rounded-lg px-2 py-2 text-sm font-medium transition-all duration-200"
           :class="[
             isActive(item.path)
-              ? 'bg-white/10 text-white shadow-sm ring-1 ring-white/5'
-              : 'text-white/60 hover:bg-white/5 hover:text-white',
+              ? 'bg-accent text-accent-foreground shadow-sm'
+              : 'text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground',
           ]"
         >
           <component :is="item.icon" class="h-4 w-4 shrink-0" />
@@ -132,18 +132,20 @@ onMounted(() => {
 
       <!-- History Section -->
       <div class="flex-1 flex flex-col overflow-hidden mt-6">
-        <div class="px-5 pb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">
+        <div
+          class="px-5 pb-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest"
+        >
           Recent Chats
         </div>
 
         <div class="flex-1 overflow-y-auto px-3 space-y-0.5 custom-scrollbar pb-4 text-white/80">
           <div v-if="aiStore.isLoadingList" class="p-4 space-y-2">
-            <div v-for="i in 5" :key="i" class="h-8 bg-white/5 rounded animate-pulse w-full"></div>
+            <div v-for="i in 5" :key="i" class="h-8 bg-muted rounded animate-pulse w-full"></div>
           </div>
 
           <div
             v-else-if="aiStore.chats.length === 0"
-            class="px-2 py-8 text-xs text-white/30 text-center italic"
+            class="px-2 py-8 text-xs text-muted-foreground/60 text-center italic"
           >
             No recent chats
           </div>
@@ -154,8 +156,8 @@ onMounted(() => {
             class="group relative flex items-center rounded-lg px-2 py-2.5 text-xs transition-all duration-200 cursor-pointer"
             :class="[
               isChatActive(chat.id)
-                ? 'bg-white/10 text-white font-medium shadow-sm'
-                : 'text-white/60 hover:bg-white/5 hover:text-white',
+                ? 'bg-accent text-accent-foreground font-medium shadow-sm'
+                : 'text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground',
             ]"
             @click="selectChat(chat.id)"
           >
@@ -175,20 +177,20 @@ onMounted(() => {
     </div>
 
     <!-- User Profile Area -->
-    <div class="p-4 border-t border-white/5 bg-white/[0.02]">
+    <div class="p-4 border-t bg-muted/20">
       <div class="flex items-center group">
         <div
-          class="h-9 w-9 rounded-full bg-primary flex items-center justify-center text-white text-xs font-bold ring-1 ring-white/10 shrink-0"
+          class="h-9 w-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold ring-1 ring-border shrink-0"
         >
           {{ user?.name?.charAt(0) || 'U' }}
         </div>
         <div class="ml-3 flex-1 overflow-hidden">
-          <p class="text-xs font-semibold truncate text-white/90">{{ user?.name || 'User' }}</p>
-          <p class="text-[10px] text-white/40 truncate">{{ user?.email }}</p>
+          <p class="text-xs font-semibold truncate text-foreground">{{ user?.name || 'User' }}</p>
+          <p class="text-[10px] text-muted-foreground truncate">{{ user?.email }}</p>
         </div>
         <button
           @click="handleLogout"
-          class="p-2 text-white/40 hover:text-red-400 transition-colors rounded-lg hover:bg-white/5"
+          class="p-2 text-muted-foreground hover:text-destructive transition-colors rounded-lg hover:bg-accent"
           title="Log out"
         >
           <LogOut class="h-3.5 w-3.5" />
@@ -203,10 +205,10 @@ onMounted(() => {
   width: 3px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: hsl(var(--muted));
   border-radius: 9999px;
 }
 .custom-scrollbar:hover::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: hsl(var(--border));
 }
 </style>

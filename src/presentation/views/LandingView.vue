@@ -1,14 +1,19 @@
 <script setup>
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Button } from '@/presentation/components/common/ui'
 import { ArrowRight, Brain, Zap, BarChart, Sun, Moon } from 'lucide-vue-next'
 import { useDark, useToggle } from '@vueuse/core'
 import { useLanguage } from '@/presentation/composables/useLanguage'
+import { landingTranslations } from '@/shared/locales/landingTranslations'
 
 const router = useRouter()
 const isDark = useDark()
 const toggleDark = useToggle(isDark)
 const { currentLocale, setLocale } = useLanguage()
+
+// Get reactive translations based on current locale
+const t = computed(() => landingTranslations[currentLocale.value])
 
 const toggleLanguage = () => {
   setLocale(currentLocale.value === 'en' ? 'ar' : 'en')
@@ -29,7 +34,7 @@ const toggleLanguage = () => {
           <span class="font-bold text-xl tracking-tight">EduGenius</span>
         </div>
         <div class="flex items-center gap-4">
-          <!-- Controls Moved to Header -->
+          <!-- Controls -->
           <Button
             variant="ghost"
             size="sm"
@@ -52,27 +57,18 @@ const toggleLanguage = () => {
 
           <div class="h-6 w-px bg-border/50 mx-2"></div>
 
-          <Button variant="ghost" @click="router.push('/login')">Sign In</Button>
+          <Button variant="ghost" @click="router.push('/login')">{{ t.nav.signIn }}</Button>
           <Button
             @click="router.push('/register')"
             class="shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all"
           >
-            Get Started
+            {{ t.nav.getStarted }}
           </Button>
         </div>
       </div>
     </nav>
 
-    <!-- ... Hero ... -->
-
-    <!-- ... Features ... -->
-
-    <!-- ... How It Works ... -->
-
-    <!-- ... Testimonials ... -->
-
-    <!-- ... FAQ ... -->
-
+    <!-- Hero Section -->
     <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 container mx-auto px-6">
       <div class="grid lg:grid-cols-2 gap-12 items-center">
         <!-- Text Content -->
@@ -81,20 +77,15 @@ const toggleLanguage = () => {
             class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium border border-primary/20"
           >
             <Zap class="h-3 w-3" />
-            <span>AI-Powered Learning Revolution</span>
+            <span>{{ t.hero.badge }}</span>
           </div>
 
           <h1 class="text-5xl lg:text-7xl font-bold leading-tight tracking-tight">
-            Unlock Your
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-400"
-              >Potential</span
-            >
-            with Artificial Intelligence
+            {{ t.hero.title }}
           </h1>
 
           <p class="text-xl text-muted-foreground leading-relaxed max-w-xl">
-            Experience the future of education. Our AI-driven dashboard personalizes your learning
-            journey, tracks real-time progress, and adapts to your unique style.
+            {{ t.hero.description }}
           </p>
 
           <div class="flex flex-col sm:flex-row gap-4 pt-4">
@@ -103,8 +94,10 @@ const toggleLanguage = () => {
               class="h-12 px-8 text-lg rounded-full shadow-xl shadow-primary/25 hover:shadow-primary/50 transition-all group"
               @click="router.push('/register')"
             >
-              Start Learning Now
-              <ArrowRight class="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              {{ t.hero.cta }}
+              <ArrowRight
+                class="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform rtl:rotate-180"
+              />
             </Button>
           </div>
 
@@ -113,13 +106,13 @@ const toggleLanguage = () => {
               <div
                 class="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_10px_theme('colors.green.500')]"
               ></div>
-              <span class="text-sm font-medium">99.9% UpTime</span>
+              <span class="text-sm font-medium">{{ t.hero.uptime }}</span>
             </div>
             <div class="flex items-center gap-2">
               <div
                 class="h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_10px_theme('colors.blue.500')]"
               ></div>
-              <span class="text-sm font-medium">10k+ Students</span>
+              <span class="text-sm font-medium">{{ t.hero.students }}</span>
             </div>
           </div>
         </div>
@@ -150,8 +143,8 @@ const toggleLanguage = () => {
                   <BarChart class="h-5 w-5 text-green-400" />
                 </div>
                 <div>
-                  <div class="text-xs text-muted-foreground">Progress</div>
-                  <div class="font-bold text-green-400">+28% Growth</div>
+                  <div class="text-xs text-muted-foreground">{{ t.hero.progress }}</div>
+                  <div class="font-bold text-green-400">{{ t.hero.growth }}</div>
                 </div>
               </div>
             </div>
@@ -164,8 +157,8 @@ const toggleLanguage = () => {
                   <Brain class="h-5 w-5 text-blue-400" />
                 </div>
                 <div>
-                  <div class="text-xs text-muted-foreground">AI Tutor</div>
-                  <div class="font-bold text-blue-400">Active Now</div>
+                  <div class="text-xs text-muted-foreground">{{ t.hero.tutor }}</div>
+                  <div class="font-bold text-blue-400">{{ t.hero.active }}</div>
                 </div>
               </div>
             </div>
@@ -183,10 +176,9 @@ const toggleLanguage = () => {
 
       <div class="container mx-auto px-6">
         <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
-          <h2 class="text-3xl font-bold">Why Choose EduGenius?</h2>
+          <h2 class="text-3xl font-bold">{{ t.features.title }}</h2>
           <p class="text-muted-foreground">
-            Detailed analytics, personalized quizzes, and an AI tutor that's always ready to help
-            you excel.
+            {{ t.features.description }}
           </p>
         </div>
 
@@ -202,10 +194,9 @@ const toggleLanguage = () => {
             >
               <Brain class="h-6 w-6" />
             </div>
-            <h3 class="text-xl font-bold mb-3">AI Personal Tutor</h3>
+            <h3 class="text-xl font-bold mb-3">{{ t.features.item1.title }}</h3>
             <p class="text-muted-foreground text-sm leading-relaxed">
-              Get 24/7 assistance tailored to your learning pace. Our AI breaks down complex topics
-              into bite-sized, easy-to-understand concepts.
+              {{ t.features.item1.desc }}
             </p>
           </div>
 
@@ -220,10 +211,9 @@ const toggleLanguage = () => {
             >
               <Zap class="h-6 w-6" />
             </div>
-            <h3 class="text-xl font-bold mb-3">Adaptive Quizzes</h3>
+            <h3 class="text-xl font-bold mb-3">{{ t.features.item2.title }}</h3>
             <p class="text-muted-foreground text-sm leading-relaxed">
-              Test your knowledge with dynamic quizzes generated from your course material. Instant
-              feedback helps you identify areas for improvement.
+              {{ t.features.item2.desc }}
             </p>
           </div>
 
@@ -238,10 +228,9 @@ const toggleLanguage = () => {
             >
               <BarChart class="h-6 w-6" />
             </div>
-            <h3 class="text-xl font-bold mb-3">Deep Analytics</h3>
+            <h3 class="text-xl font-bold mb-3">{{ t.features.item3.title }}</h3>
             <p class="text-muted-foreground text-sm leading-relaxed">
-              Visualize your progress with beautiful, interactive charts. Track your strengths and
-              weaknesses to optimize your study time.
+              {{ t.features.item3.desc }}
             </p>
           </div>
         </div>
@@ -252,8 +241,8 @@ const toggleLanguage = () => {
     <section class="py-24 relative">
       <div class="container mx-auto px-6">
         <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
-          <h2 class="text-3xl font-bold">How It Works</h2>
-          <p class="text-muted-foreground">Three simple steps to supercharge your learning.</p>
+          <h2 class="text-3xl font-bold">{{ t.howItWorks.title }}</h2>
+          <p class="text-muted-foreground">{{ t.howItWorks.description }}</p>
         </div>
 
         <div class="grid md:grid-cols-3 gap-8 relative">
@@ -268,9 +257,9 @@ const toggleLanguage = () => {
             >
               <span class="text-3xl font-bold text-muted-foreground">1</span>
             </div>
-            <h3 class="text-xl font-bold">Sign Up</h3>
-            <p class="text-muted-foreground text-sm">
-              Create your free account in seconds and set up your student profile.
+            <h3 class="text-xl font-bold">{{ t.howItWorks.step1.title }}</h3>
+            <p class="text-muted-foreground text-sm font-sans">
+              {{ t.howItWorks.step1.desc }}
             </p>
           </div>
 
@@ -280,9 +269,9 @@ const toggleLanguage = () => {
             >
               <span class="text-3xl font-bold">2</span>
             </div>
-            <h3 class="text-xl font-bold">Start Learning</h3>
-            <p class="text-muted-foreground text-sm">
-              Upload your study materials or let our AI generate a custom curriculum for you.
+            <h3 class="text-xl font-bold">{{ t.howItWorks.step2.title }}</h3>
+            <p class="text-muted-foreground text-sm font-sans">
+              {{ t.howItWorks.step2.desc }}
             </p>
           </div>
 
@@ -292,9 +281,9 @@ const toggleLanguage = () => {
             >
               <span class="text-3xl font-bold text-muted-foreground">3</span>
             </div>
-            <h3 class="text-xl font-bold">Track Growth</h3>
-            <p class="text-muted-foreground text-sm">
-              Watch your grades improve as our dashboard insights guide your focus.
+            <h3 class="text-xl font-bold">{{ t.howItWorks.step3.title }}</h3>
+            <p class="text-muted-foreground text-sm font-sans">
+              {{ t.howItWorks.step3.desc }}
             </p>
           </div>
         </div>
@@ -305,58 +294,36 @@ const toggleLanguage = () => {
     <section class="py-24 bg-muted/20">
       <div class="container mx-auto px-6">
         <div class="text-center max-w-2xl mx-auto mb-16">
-          <h2 class="text-3xl font-bold mb-4">Student Success Stories</h2>
+          <h2 class="text-3xl font-bold mb-4">{{ t.testimonials.title }}</h2>
           <p class="text-muted-foreground">
-            Join thousands of students who have transformed their grades.
+            {{ t.testimonials.description }}
           </p>
         </div>
 
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div class="p-6 rounded-2xl bg-card border border-border shadow-sm">
+          <div
+            v-for="(quote, index) in t.testimonials.quotes"
+            :key="index"
+            class="p-6 rounded-2xl bg-card border border-border shadow-sm"
+          >
             <div class="flex items-center gap-1 text-yellow-500 mb-4">★★★★★</div>
-            <p class="text-muted-foreground mb-6">
-              "This app completely changed how I study. The AI tutor validates my understanding in
-              real-time!"
+            <p class="text-muted-foreground mb-6 italic">
+              {{ quote.text }}
             </p>
             <div class="flex items-center gap-3">
               <div
-                class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500"
+                :class="[
+                  'w-10 h-10 rounded-full bg-gradient-to-tr',
+                  index === 0
+                    ? 'from-purple-500 to-pink-500'
+                    : index === 1
+                      ? 'from-blue-500 to-green-500'
+                      : 'from-amber-500 to-orange-500',
+                ]"
               ></div>
               <div>
-                <div class="font-bold">Sarah M.</div>
-                <div class="text-xs text-muted-foreground">Computer Science Student</div>
-              </div>
-            </div>
-          </div>
-          <div class="p-6 rounded-2xl bg-card border border-border shadow-sm">
-            <div class="flex items-center gap-1 text-yellow-500 mb-4">★★★★★</div>
-            <p class="text-muted-foreground mb-6">
-              "The analytics features helps me visualize exact where I need to focus. My grades are
-              up 20%!"
-            </p>
-            <div class="flex items-center gap-3">
-              <div
-                class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-green-500"
-              ></div>
-              <div>
-                <div class="font-bold">James L.</div>
-                <div class="text-xs text-muted-foreground">Medical Student</div>
-              </div>
-            </div>
-          </div>
-          <div class="p-6 rounded-2xl bg-card border border-border shadow-sm">
-            <div class="flex items-center gap-1 text-yellow-500 mb-4">★★★★★</div>
-            <p class="text-muted-foreground mb-6">
-              "Simple, beautiful, and effective. The quizzes generated from my own notes are a game
-              changer."
-            </p>
-            <div class="flex items-center gap-3">
-              <div
-                class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-orange-500"
-              ></div>
-              <div>
-                <div class="font-bold">Emily R.</div>
-                <div class="text-xs text-muted-foreground">Literature Major</div>
+                <div class="font-bold">{{ quote.author }}</div>
+                <div class="text-xs text-muted-foreground">{{ quote.role }}</div>
               </div>
             </div>
           </div>
@@ -368,41 +335,20 @@ const toggleLanguage = () => {
     <section class="py-24">
       <div class="container mx-auto px-6 max-w-3xl">
         <div class="text-center mb-16">
-          <h2 class="text-3xl font-bold mb-4">Frequently Asked Questions</h2>
+          <h2 class="text-3xl font-bold mb-4">{{ t.faq.title }}</h2>
         </div>
 
         <div class="space-y-4">
           <div
+            v-for="(item, index) in t.faq.questions"
+            :key="index"
             class="group border border-border rounded-lg p-6 hover:border-primary/50 transition-colors cursor-pointer"
           >
             <h3 class="font-bold text-lg mb-2 group-hover:text-primary transition-colors">
-              Is EduGenius really free?
+              {{ item.q }}
             </h3>
             <p class="text-muted-foreground">
-              Yes! We offer a generous free tier for all students. Premium features are available
-              for power users.
-            </p>
-          </div>
-          <div
-            class="group border border-border rounded-lg p-6 hover:border-primary/50 transition-colors cursor-pointer"
-          >
-            <h3 class="font-bold text-lg mb-2 group-hover:text-primary transition-colors">
-              How does the AI Tutor work?
-            </h3>
-            <p class="text-muted-foreground">
-              Our AI analyzes your course material and your quiz performance to offer personalized
-              explanations and study tips.
-            </p>
-          </div>
-          <div
-            class="group border border-border rounded-lg p-6 hover:border-primary/50 transition-colors cursor-pointer"
-          >
-            <h3 class="font-bold text-lg mb-2 group-hover:text-primary transition-colors">
-              Can I upload my own PDFs?
-            </h3>
-            <p class="text-muted-foreground">
-              Absolutely. You can upload lecture notes, textbooks (PDF), and other materials for the
-              AI to process.
+              {{ item.a }}
             </p>
           </div>
         </div>
@@ -419,8 +365,7 @@ const toggleLanguage = () => {
               <span class="font-bold text-2xl tracking-tight">EduGenius</span>
             </div>
             <p class="text-gray-300 max-w-sm leading-relaxed">
-              Empowering the next generation of learners with AI-driven insights and personalized
-              study plans. Join the revolution today.
+              {{ t.footer.about }}
             </p>
             <div class="flex gap-4 pt-4">
               <!-- Social Placeholders -->
@@ -448,22 +393,38 @@ const toggleLanguage = () => {
           </div>
 
           <div>
-            <h4 class="font-bold text-lg mb-6">Platform</h4>
+            <h4 class="font-bold text-lg mb-6">{{ t.footer.platform.title }}</h4>
             <ul class="space-y-4 text-gray-400">
-              <li class="hover:text-primary transition-colors cursor-pointer">Features</li>
-              <li class="hover:text-primary transition-colors cursor-pointer">Pricing</li>
-              <li class="hover:text-primary transition-colors cursor-pointer">For Schools</li>
-              <li class="hover:text-primary transition-colors cursor-pointer">AI Research</li>
+              <li class="hover:text-primary transition-colors cursor-pointer">
+                {{ t.footer.platform.features }}
+              </li>
+              <li class="hover:text-primary transition-colors cursor-pointer">
+                {{ t.footer.platform.pricing }}
+              </li>
+              <li class="hover:text-primary transition-colors cursor-pointer">
+                {{ t.footer.platform.schools }}
+              </li>
+              <li class="hover:text-primary transition-colors cursor-pointer">
+                {{ t.footer.platform.research }}
+              </li>
             </ul>
           </div>
 
           <div>
-            <h4 class="font-bold text-lg mb-6">Support</h4>
+            <h4 class="font-bold text-lg mb-6">{{ t.footer.support.title }}</h4>
             <ul class="space-y-4 text-gray-400">
-              <li class="hover:text-primary transition-colors cursor-pointer">Help Center</li>
-              <li class="hover:text-primary transition-colors cursor-pointer">Community</li>
-              <li class="hover:text-primary transition-colors cursor-pointer">Terms of Service</li>
-              <li class="hover:text-primary transition-colors cursor-pointer">Privacy Policy</li>
+              <li class="hover:text-primary transition-colors cursor-pointer">
+                {{ t.footer.support.help }}
+              </li>
+              <li class="hover:text-primary transition-colors cursor-pointer">
+                {{ t.footer.support.community }}
+              </li>
+              <li class="hover:text-primary transition-colors cursor-pointer">
+                {{ t.footer.support.terms }}
+              </li>
+              <li class="hover:text-primary transition-colors cursor-pointer">
+                {{ t.footer.support.privacy }}
+              </li>
             </ul>
           </div>
         </div>
@@ -471,11 +432,17 @@ const toggleLanguage = () => {
         <div
           class="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500"
         >
-          <p>&copy; 2026 EduGenius Inc. All rights reserved.</p>
+          <p>{{ t.footer.rights }}</p>
           <div class="flex items-center gap-6">
-            <span class="hover:text-white transition-colors cursor-pointer">Privacy</span>
-            <span class="hover:text-white transition-colors cursor-pointer">Terms</span>
-            <span class="hover:text-white transition-colors cursor-pointer">Sitemap</span>
+            <span class="hover:text-white transition-colors cursor-pointer">{{
+              t.footer.bottom.privacy
+            }}</span>
+            <span class="hover:text-white transition-colors cursor-pointer">{{
+              t.footer.bottom.terms
+            }}</span>
+            <span class="hover:text-white transition-colors cursor-pointer">{{
+              t.footer.bottom.sitemap
+            }}</span>
           </div>
         </div>
       </div>

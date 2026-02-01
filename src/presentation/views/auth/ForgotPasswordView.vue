@@ -3,6 +3,8 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { authApi } from '@/infrastructure/api/authApi'
 import { Button, Input, Label } from '@/presentation/components/common/ui'
+import { ArrowLeft } from 'lucide-vue-next'
+import AuthBackground from '@/presentation/components/common/AuthBackground.vue'
 import { useToast } from '@/presentation/composables/useToast'
 import { getErrorMessage } from '@/shared/middleware/errorBoundary'
 import {
@@ -46,8 +48,21 @@ const handleForgotPassword = async () => {
 </script>
 
 <template>
-  <div class="flex items-center justify-center min-h-screen bg-muted/20">
-    <Card class="w-full max-w-sm">
+  <div class="flex items-center justify-center min-h-screen relative overflow-hidden">
+    <AuthBackground />
+    <!-- Back to Landing Button -->
+    <Button
+      variant="ghost"
+      size="icon"
+      class="absolute top-6 left-6 z-10 rounded-full hover:bg-background/80"
+      @click="router.push('/')"
+      title="Back to Home"
+    >
+      <ArrowLeft class="h-5 w-5" />
+    </Button>
+    <Card
+      class="w-full max-w-sm relative z-10 backdrop-blur-sm bg-card/95 border-primary/10 shadow-2xl"
+    >
       <CardHeader>
         <CardTitle class="text-2xl">Forgot Password</CardTitle>
         <CardDescription>

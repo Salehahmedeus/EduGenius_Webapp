@@ -12,6 +12,8 @@ import {
   CardTitle,
 } from '@/presentation/components/common/ui/card'
 
+import { formatters } from '@/shared/utils/formatters'
+
 const { toast } = useToast()
 const materials = ref([])
 const searchQuery = ref('')
@@ -24,7 +26,7 @@ const fetchMaterials = async () => {
   isLoading.value = true
   try {
     const response = await contentApi.getMaterials()
-    // Based on common API patterns in this project (data or direct array)
+    // Based on user provided response structure
     materials.value = Array.isArray(response) ? response : response.data || []
   } catch (e) {
     toast({
@@ -114,12 +116,25 @@ const handleDelete = async (id) => {
   }
 }
 
+const getFileIconColor = (type) => {
+  if (type?.includes('pdf')) return 'text-red-500'
+  if (type?.includes('word') || type?.includes('doc')) return 'text-blue-500'
+  return 'text-primary'
+}
+
+const formatFileType = (type) => {
+  if (!type) return 'Document'
+  if (type.includes('pdf')) return 'PDF Document'
+  if (type.includes('word') || type.includes('officedocument')) return 'Word Document'
+  if (type.includes('text')) return 'Text File'
+  return 'File'
+}
+
 onMounted(fetchMaterials)
 
 const filteredMaterials = computed(() => {
-  // If we want local filtering as well
   return materials.value.filter((m) =>
-    (m.name || m.title || '').toLowerCase().includes(searchQuery.value.toLowerCase()),
+    (m.file_name || '').toLowerCase().includes(searchQuery.value.toLowerCase()),
   )
 })
 </script>
@@ -205,10 +220,8 @@ const filteredMaterials = computed(() => {
             class="group hover:shadow-lg transition-all duration-300 border-muted/50 overflow-hidden rounded-2xl cursor-default"
           >
             <CardHeader class="pb-3 flex flex-row items-start justify-between space-y-0">
-              <div
-                class="bg-primary/10 p-2.5 rounded-xl group-hover:bg-primary/20 transition-colors"
-              >
-                <FileText class="h-5 w-5 text-primary" />
+              <div class="p-2.5 rounded-xl transition-colors bg-muted/50 group-hover:bg-primary/10">
+                <FileText class="h-5 w-5" :class="getFileIconColor(material.file_type)" />
               </div>
               <Button
                 variant="ghost"
@@ -221,15 +234,16 @@ const filteredMaterials = computed(() => {
             </CardHeader>
             <CardContent>
               <CardTitle class="text-[15px] line-clamp-1 mb-1">{{
-                material.name || material.title || 'Untitled'
+                material.file_name || 'Untitled'
               }}</CardTitle>
               <CardDescription class="text-xs flex flex-col gap-1">
-                <span
-                  >{{ material.file_type || 'Document' }} • {{ material.file_size || '---' }}</span
-                >
-                <span v-if="material.created_at" class="text-[10px] opacity-70"
-                  >Added on {{ new Date(material.created_at).toLocaleDateString() }}</span
-                >
+                <span>
+                  {{ formatFileType(material.file_type) }} •
+                  {{ formatters.fileSize(material.file_size) }}
+                </span>
+                <span v-if="material.created_at" class="text-[10px] opacity-70">
+                  Added on {{ formatters.date(material.created_at, 'short') }}
+                </span>
               </CardDescription>
             </CardContent>
           </Card>

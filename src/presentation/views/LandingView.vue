@@ -69,7 +69,7 @@ const toggleLanguage = () => {
     </nav>
 
     <!-- Hero Section -->
-    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 container mx-auto px-6">
+    <section class="relative pt-20 pb-20 lg:pt-32 lg:pb-32 container mx-auto px-6">
       <div class="grid lg:grid-cols-2 gap-12 items-center">
         <!-- Text Content -->
         <div class="space-y-8 animate-in slide-in-from-left duration-700 fade-in">

@@ -93,10 +93,10 @@ onMounted(() => {
 
       <Button
         variant="ghost"
-        class="w-full justify-start gap-2 h-10 px-3 bg-muted hover:bg-muted/80 text-foreground border-transparent transition-all rounded-xl"
+        class="w-full h-10 px-3 bg-muted hover:bg-muted/80 text-foreground border-transparent transition-all rounded-xl flex items-center justify-start gap-2.5"
         @click="handleNewChat"
       >
-        <Plus class="h-4 w-4" />
+        <Plus class="h-4 w-4 shrink-0" />
         <span class="text-sm font-medium">New chat</span>
       </Button>
     </div>

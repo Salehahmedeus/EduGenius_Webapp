@@ -113,19 +113,26 @@ const handleGenerateQuiz = async () => {
       generateForm.value.difficulty,
     )
 
-    toast({
-      title: 'Quiz Generated!',
-      description: 'Your quiz is ready to take',
-      variant: 'success',
-    })
+    // Extract quiz ID from various possible response structures
+    const quizId = response.quiz?.id || response.id || response.data?.id || response.data?.quiz?.id
 
     showGenerateModal.value = false
     generateForm.value = { selectedMaterialIds: [], difficulty: 1 }
 
-    // If API returns the new quiz with an ID, navigate to it
-    if (response.quiz?.id || response.id) {
-      router.push(`/quiz/${response.quiz?.id || response.id}`)
+    if (quizId) {
+      toast({
+        title: 'Quiz Generated!',
+        description: 'Opening your quiz now...',
+        variant: 'success',
+      })
+      // Navigate directly to the generated quiz
+      router.push(`/quiz/${quizId}`)
     } else {
+      toast({
+        title: 'Quiz Generated!',
+        description: 'Your quiz is ready to take',
+        variant: 'success',
+      })
       await fetchQuizzes()
     }
   } catch (e) {

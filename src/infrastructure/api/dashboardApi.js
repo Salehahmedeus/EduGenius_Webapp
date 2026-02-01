@@ -10,7 +10,16 @@ export const dashboardApi = {
 
   async getProgressReport() {
     // Postman: POST /api/dashboard/report
-    const response = await apiClient.post(API_ENDPOINTS.dashboard.report, {})
+    // Requires 'Accept-Language: ar' or similar
+    const response = await apiClient.post(
+      API_ENDPOINTS.dashboard.report,
+      {},
+      {
+        headers: {
+          'Accept-Language': 'ar',
+        },
+      },
+    )
     return response.data
   },
 }

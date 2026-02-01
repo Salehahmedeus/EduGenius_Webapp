@@ -128,19 +128,15 @@ onMounted(() => {
         </Button>
       </CardFooter>
       <div class="px-6 pb-6 text-center text-sm">
-        <div v-if="resendTimer > 0" class="text-muted-foreground">
-          Resend code in {{ resendTimer }}s
-        </div>
-        <div v-else>
-          Didn't receive the code?
-          <button
-            @click="handleResendOtp"
-            class="underline underline-offset-4 hover:text-primary transition-colors disabled:opacity-50"
-            :disabled="isLoading"
-          >
-            Resend
-          </button>
-        </div>
+        Didn't receive the code?
+        <button
+          @click="handleResendOtp"
+          class="underline underline-offset-4 hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          :disabled="isLoading || resendTimer > 0"
+        >
+          <span v-if="resendTimer > 0">Resend in {{ resendTimer }}s</span>
+          <span v-else>Resend</span>
+        </button>
       </div>
     </Card>
   </div>

@@ -23,11 +23,7 @@ const passwordConfirmation = ref('')
 const isLoading = ref(false)
 const { toast } = useToast()
 
-onMounted(() => {
-  if (route.query.email) {
-    email.value = route.query.email
-  }
-})
+// onMounted merged below
 
 const handleResetPassword = async () => {
   if (password.value !== passwordConfirmation.value) {
@@ -67,6 +63,62 @@ const handleResetPassword = async () => {
     isLoading.value = false
   }
 }
+
+const resendTimer = ref(60) // Start with 60s cooldown on mount
+let timerInterval = null
+
+const startResendTimer = () => {
+  resendTimer.value = 60
+  if (timerInterval) clearInterval(timerInterval)
+
+  timerInterval = setInterval(() => {
+    if (resendTimer.value > 0) {
+      resendTimer.value--
+    } else {
+      clearInterval(timerInterval)
+      timerInterval = null
+    }
+  }, 1000)
+}
+
+const handleResendOtp = async () => {
+  if (!email.value) {
+    toast({
+      title: 'Error',
+      description: 'Email is required to resend OTP',
+      variant: 'destructive',
+    })
+    return
+  }
+
+  isLoading.value = true
+  try {
+    // Re-trigger forgot password to resend OTP
+    await authApi.forgotPassword({ email: email.value })
+    toast({
+      title: 'Success',
+      description: 'A new OTP has been sent to your email.',
+      variant: 'success',
+    })
+    startResendTimer()
+  } catch (e) {
+    const message = e.response?.data?.message || e.message || 'Failed to resend OTP'
+    toast({
+      title: 'Error',
+      description: message,
+      variant: 'destructive',
+    })
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(() => {
+  if (route.query.email) {
+    email.value = route.query.email
+  }
+  startResendTimer()
+})
 </script>
 
 <template>
@@ -105,6 +157,17 @@ const handleResetPassword = async () => {
           <span v-else>Reset Password</span>
         </Button>
       </CardFooter>
+      <div class="px-6 pb-6 text-center text-sm">
+        Didn't receive the code?
+        <button
+          @click="handleResendOtp"
+          class="underline underline-offset-4 hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          :disabled="isLoading || resendTimer > 0"
+        >
+          <span v-if="resendTimer > 0">Resend in {{ resendTimer }}s</span>
+          <span v-else>Resend</span>
+        </button>
+      </div>
     </Card>
   </div>
 </template>

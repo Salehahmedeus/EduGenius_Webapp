@@ -14,10 +14,11 @@ export const quizzesApi = {
     return response.data
   },
 
-  async generateQuiz(topic, difficulty) {
+  async generateQuiz(materialIds, difficulty) {
     // Postman: POST /api/quiz/generate
+    // Body: { material_ids: [4], difficulty: 1 }
     const response = await apiClient.post(API_ENDPOINTS.quiz.generate, {
-      topic,
+      material_ids: materialIds,
       difficulty,
     })
     return response.data

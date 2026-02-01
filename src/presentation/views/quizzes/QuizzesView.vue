@@ -1,9 +1,20 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Plus, Loader2, BookOpen, Trophy, Clock, ChevronRight, Sparkles, X } from 'lucide-vue-next'
+import {
+  Plus,
+  Loader2,
+  BookOpen,
+  Trophy,
+  ChevronRight,
+  Sparkles,
+  X,
+  FileText,
+  Check,
+} from 'lucide-vue-next'
 import { quizzesApi } from '@/infrastructure/api/quizzesApi'
-import { Button, Input, Label } from '@/presentation/components/common/ui'
+import { contentApi } from '@/infrastructure/api/contentApi'
+import { Button, Label } from '@/presentation/components/common/ui'
 import { useToast } from '@/presentation/composables/useToast'
 import {
   Card,
@@ -18,13 +29,15 @@ const { toast } = useToast()
 const router = useRouter()
 
 const quizzes = ref([])
+const materials = ref([])
 const isLoading = ref(false)
+const isLoadingMaterials = ref(false)
 const isGenerating = ref(false)
 const showGenerateModal = ref(false)
 
 // Generate quiz form
 const generateForm = ref({
-  topic: '',
+  selectedMaterialIds: [],
   difficulty: 1,
 })
 
@@ -50,11 +63,44 @@ const fetchQuizzes = async () => {
   }
 }
 
+const fetchMaterials = async () => {
+  isLoadingMaterials.value = true
+  try {
+    const response = await contentApi.getMaterials()
+    materials.value = Array.isArray(response) ? response : response.data || response.materials || []
+  } catch (e) {
+    console.error('Failed to fetch materials', e)
+  } finally {
+    isLoadingMaterials.value = false
+  }
+}
+
+const openGenerateModal = async () => {
+  showGenerateModal.value = true
+  generateForm.value = { selectedMaterialIds: [], difficulty: 1 }
+  if (materials.value.length === 0) {
+    await fetchMaterials()
+  }
+}
+
+const toggleMaterialSelection = (materialId) => {
+  const index = generateForm.value.selectedMaterialIds.indexOf(materialId)
+  if (index === -1) {
+    generateForm.value.selectedMaterialIds.push(materialId)
+  } else {
+    generateForm.value.selectedMaterialIds.splice(index, 1)
+  }
+}
+
+const isMaterialSelected = (materialId) => {
+  return generateForm.value.selectedMaterialIds.includes(materialId)
+}
+
 const handleGenerateQuiz = async () => {
-  if (!generateForm.value.topic.trim()) {
+  if (generateForm.value.selectedMaterialIds.length === 0) {
     toast({
       title: 'Validation Error',
-      description: 'Please enter a topic for the quiz',
+      description: 'Please select at least one material for the quiz',
       variant: 'destructive',
     })
     return
@@ -63,7 +109,7 @@ const handleGenerateQuiz = async () => {
   isGenerating.value = true
   try {
     const response = await quizzesApi.generateQuiz(
-      generateForm.value.topic,
+      generateForm.value.selectedMaterialIds,
       generateForm.value.difficulty,
     )
 
@@ -74,7 +120,7 @@ const handleGenerateQuiz = async () => {
     })
 
     showGenerateModal.value = false
-    generateForm.value = { topic: '', difficulty: 1 }
+    generateForm.value = { selectedMaterialIds: [], difficulty: 1 }
 
     // If API returns the new quiz with an ID, navigate to it
     if (response.quiz?.id || response.id) {
@@ -122,7 +168,7 @@ onMounted(fetchQuizzes)
       </div>
 
       <Button
-        @click="showGenerateModal = true"
+        @click="openGenerateModal"
         class="rounded-xl shadow-md transition-all hover:scale-[1.02]"
       >
         <Sparkles class="mr-2 h-4 w-4" />
@@ -149,9 +195,9 @@ onMounted(fetchQuizzes)
         </div>
         <h3 class="text-xl font-semibold">No quizzes yet</h3>
         <p class="text-muted-foreground max-w-xs text-center mt-2">
-          Generate your first quiz to test your knowledge on any topic.
+          Generate your first quiz from your uploaded materials.
         </p>
-        <Button variant="outline" class="mt-6 rounded-xl" @click="showGenerateModal = true">
+        <Button variant="outline" class="mt-6 rounded-xl" @click="openGenerateModal">
           <Plus class="mr-2 h-4 w-4" />
           Create first quiz
         </Button>
@@ -187,11 +233,12 @@ onMounted(fetchQuizzes)
               <CardDescription class="text-xs flex flex-col gap-2">
                 <div class="flex items-center gap-4">
                   <span
-                    v-if="quiz.questions_count || quiz.total_questions"
+                    v-if="quiz.questions_count || quiz.total_questions || quiz.questions?.length"
                     class="flex items-center gap-1"
                   >
                     <BookOpen class="h-3 w-3" />
-                    {{ quiz.questions_count || quiz.total_questions }} questions
+                    {{ quiz.questions_count || quiz.total_questions || quiz.questions?.length }}
+                    questions
                   </span>
                   <span
                     v-if="quiz.score !== undefined && quiz.score !== null"
@@ -209,7 +256,7 @@ onMounted(fetchQuizzes)
               <div
                 class="mt-4 flex items-center text-xs text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity"
               >
-                <span>{{ quiz.score !== undefined ? 'Review' : 'Start Quiz' }}</span>
+                <span>{{ quiz.is_completed ? 'Review' : 'Start Quiz' }}</span>
                 <ChevronRight class="h-3 w-3 ml-1" />
               </div>
             </CardContent>
@@ -226,7 +273,7 @@ onMounted(fetchQuizzes)
         @click.self="showGenerateModal = false"
       >
         <div
-          class="bg-background rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6 animate-in zoom-in-95 duration-200"
+          class="bg-background rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6 animate-in zoom-in-95 duration-200 max-h-[80vh] flex flex-col"
         >
           <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-3">
@@ -240,17 +287,72 @@ onMounted(fetchQuizzes)
             </Button>
           </div>
 
-          <div class="space-y-4">
-            <div class="space-y-2">
-              <Label for="topic">Topic</Label>
-              <Input
-                id="topic"
-                v-model="generateForm.topic"
-                placeholder="e.g., Introduction to Machine Learning"
-                class="rounded-xl"
-              />
+          <div class="space-y-4 flex-1 overflow-hidden flex flex-col">
+            <!-- Material Selection -->
+            <div class="space-y-2 flex-1 overflow-hidden flex flex-col">
+              <Label>Select Materials</Label>
+              <p class="text-xs text-muted-foreground">
+                Choose one or more materials to generate quiz questions from.
+              </p>
+
+              <div v-if="isLoadingMaterials" class="flex items-center justify-center py-8">
+                <Loader2 class="h-6 w-6 animate-spin text-primary" />
+              </div>
+
+              <div
+                v-else-if="materials.length === 0"
+                class="flex flex-col items-center justify-center py-8 text-center"
+              >
+                <FileText class="h-8 w-8 text-muted-foreground/50 mb-2" />
+                <p class="text-sm text-muted-foreground">No materials uploaded yet</p>
+                <Button variant="link" size="sm" @click="router.push('/materials')" class="mt-2">
+                  Upload materials first
+                </Button>
+              </div>
+
+              <div v-else class="flex-1 overflow-y-auto space-y-2 pr-1 max-h-48 custom-scrollbar">
+                <button
+                  v-for="material in materials"
+                  :key="material.id"
+                  @click="toggleMaterialSelection(material.id)"
+                  class="w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left"
+                  :class="
+                    isMaterialSelected(material.id)
+                      ? 'border-primary bg-primary/5'
+                      : 'border-muted hover:border-primary/50'
+                  "
+                >
+                  <div
+                    class="w-5 h-5 rounded border-2 flex items-center justify-center shrink-0"
+                    :class="
+                      isMaterialSelected(material.id)
+                        ? 'border-primary bg-primary'
+                        : 'border-muted-foreground/30'
+                    "
+                  >
+                    <Check
+                      v-if="isMaterialSelected(material.id)"
+                      class="h-3 w-3 text-primary-foreground"
+                    />
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium truncate">
+                      {{ material.file_name || material.name || 'Untitled' }}
+                    </p>
+                    <p class="text-[10px] text-muted-foreground">
+                      {{ formatters.fileSize(material.file_size) }}
+                    </p>
+                  </div>
+                  <FileText class="h-4 w-4 text-muted-foreground shrink-0" />
+                </button>
+              </div>
+
+              <p v-if="generateForm.selectedMaterialIds.length > 0" class="text-xs text-primary">
+                {{ generateForm.selectedMaterialIds.length }} material(s) selected
+              </p>
             </div>
 
+            <!-- Difficulty Selection -->
             <div class="space-y-2">
               <Label>Difficulty</Label>
               <div class="flex gap-2">
@@ -271,8 +373,8 @@ onMounted(fetchQuizzes)
 
             <Button
               @click="handleGenerateQuiz"
-              :disabled="isGenerating"
-              class="w-full rounded-xl mt-6"
+              :disabled="isGenerating || generateForm.selectedMaterialIds.length === 0"
+              class="w-full rounded-xl mt-4"
             >
               <template v-if="isGenerating">
                 <Loader2 class="mr-2 h-4 w-4 animate-spin" />

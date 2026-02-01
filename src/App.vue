@@ -21,7 +21,14 @@ const { toast } = useToast()
 
 const isLoggedIn = computed(() => authStore.isLoggedIn)
 const isAuthRoute = computed(() => {
-  const authRoutes = ['/login', '/register', '/verify-otp', '/forgot-password', '/reset-password']
+  const authRoutes = [
+    '/login',
+    '/register',
+    '/verify-otp',
+    '/forgot-password',
+    '/reset-password',
+    '/',
+  ]
   return authRoutes.includes(route.path)
 })
 
@@ -64,7 +71,12 @@ const toggleDark = useToggle(isDark)
 </script>
 
 <template>
-  <div class="h-screen flex overflow-hidden bg-background font-sans antialiased text-foreground">
+  <div
+    :class="[
+      'flex bg-background font-sans antialiased text-foreground',
+      isAuthRoute ? 'min-h-screen' : 'h-screen overflow-hidden',
+    ]"
+  >
     <!-- Mobile Backdrop -->
     <div
       v-if="showSidebar && isMobileMenuOpen"
@@ -162,7 +174,7 @@ const toggleDark = useToggle(isDark)
       </header>
 
       <!-- Page Content -->
-      <main class="flex-1 overflow-hidden relative">
+      <main :class="['flex-1 relative', isAuthRoute ? '' : 'overflow-hidden']">
         <RouterView />
       </main>
     </div>

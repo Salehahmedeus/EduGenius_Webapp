@@ -160,8 +160,13 @@ onMounted(() => {
           <Loader2 v-if="isLoading" class="mr-2 h-4 w-4 animate-spin" />
           Refresh
         </Button>
-        <Button @click="handleGenerateReport" class="rounded-xl shadow-sm">
-          <Download class="mr-2 h-4 w-4" />
+        <Button
+          @click="handleGenerateReport"
+          class="rounded-xl shadow-sm"
+          :disabled="isGeneratingReport"
+        >
+          <Loader2 v-if="isGeneratingReport" class="mr-2 h-4 w-4 animate-spin" />
+          <Download v-else class="mr-2 h-4 w-4" />
           Generate Report
         </Button>
       </div>
@@ -448,7 +453,9 @@ onMounted(() => {
                   <div class="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                     Average Score
                   </div>
-                  <div class="text-2xl font-bold">{{ reportData.average_score }}%</div>
+                  <div class="text-2xl font-bold">
+                    {{ parseFloat(reportData.average_score).toFixed(1) }}%
+                  </div>
                 </div>
               </div>
 
@@ -463,7 +470,7 @@ onMounted(() => {
                     <li
                       v-for="(item, i) in reportData.strengths"
                       :key="i"
-                      class="text-sm bg-green-50 text-green-700 px-3 py-2 rounded-lg border border-green-100"
+                      class="text-sm bg-green-500/10 text-green-600 px-3 py-2 rounded-lg border border-green-500/20"
                     >
                       {{ item }}
                     </li>
@@ -482,7 +489,7 @@ onMounted(() => {
                     <li
                       v-for="(item, i) in reportData.weaknesses"
                       :key="i"
-                      class="text-sm bg-red-50 text-red-700 px-3 py-2 rounded-lg border border-red-100"
+                      class="text-sm bg-red-500/10 text-red-600 px-3 py-2 rounded-lg border border-red-500/20"
                     >
                       {{ item }}
                     </li>
